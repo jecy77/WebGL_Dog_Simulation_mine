@@ -9,7 +9,7 @@ var modelViewMatrix;
 
 var instanceMatrix;
 
-var modelViewMatrixLoc;
+var modelViewMatrixLoc; // test
 
 var vertices = [
   vec4(-0.5, -0.5, 0.5, 1.0),
