@@ -192,40 +192,40 @@ var numAngles = 33; // 11;
 var angle = 0;
 
 var theta = [
-  0, // Root
-  0, // L_Clavicle
-  0, // L_Scapula
-  0, // L_Shoulder
-  0, // L_Elbow
-  0, // L_Wrist
-  0, // L_Paw
-  0, // R_Clavicle
-  0, // R_Scapula
-  0, // R_Shoulder
-  0, // R_Elbow
-  0, // R_Wrist
-  0, // R_Paw
-  0, // Root_To_Spine
-  0, // Spine1
-  0, // Spine2
-  0, // Spine3
-  0, // Pelvis_Root
-  0, // L_Pelvis
-  0, // L_Femur
-  0, // L_Tibia
-  0, // L_Ankle
-  0, // L_Foot
-  0, // R_Pelvis
-  0, // R_Femur
-  0, // R_Tibia
-  0, // R_Ankle
-  0, // R_Foot
-  0, // Neck1
-  0, // Neck2
-  0, // Head
-  0, // R_Clavicle_1 (End Site - no rotation needed, but included for structure completeness)
-];
-
+    0,   // Root: 루트 회전 없음
+    0,   // L_Clavicle: 왼쪽 쇄골
+    0,   // L_Scapula: 왼쪽 견갑
+    30,  // L_Shoulder: 왼쪽 어깨 약간 들기
+    30,  // L_Elbow: 왼쪽 팔꿈치 살짝 구부리기
+    10,  // L_Wrist: 왼쪽 손목
+    0,   // L_Paw: 왼쪽 손
+    0,   // R_Clavicle: 오른쪽 쇄골
+    0,   // R_Scapula: 오른쪽 견갑
+    30,  // R_Shoulder: 오른쪽 어깨 약간 들기
+    30,  // R_Elbow: 오른쪽 팔꿈치 살짝 구부리기
+    10,  // R_Wrist: 오른쪽 손목
+    0,   // R_Paw: 오른쪽 손
+    0,   // Root_To_Spine: 척추 더미
+    -10, // Spine1: 첫 번째 척추 약간 구부리기
+    -20, // Spine2: 두 번째 척추 더 구부리기
+    -10, // Spine3: 세 번째 척추 조금 구부리기
+    0,   // Pelvis_Root: 골반 루트
+    0,   // L_Pelvis: 왼쪽 골반
+    20,  // L_Femur: 왼쪽 대퇴골 약간 들기
+    -30, // L_Tibia: 왼쪽 경골 구부리기
+    20,  // L_Ankle: 왼쪽 발목
+    0,   // L_Foot: 왼쪽 발
+    0,   // R_Pelvis: 오른쪽 골반
+    20,  // R_Femur: 오른쪽 대퇴골 약간 들기
+    -30, // R_Tibia: 오른쪽 경골 구부리기
+    20,  // R_Ankle: 오른쪽 발목
+    0,   // R_Foot: 오른쪽 발
+    10,  // Neck1: 목 약간 들기
+    20,  // Neck2: 목 더 들기
+    0,   // Head: 머리는 직선 유지
+    0,   // R_Clavicle_1 (End Site)
+  ];
+  
 var numVertices = 24;
 
 var stack = [];
@@ -263,285 +263,196 @@ function createNode(transform, render, sibling, child) {
 }
 
 function initNodes(Id) {
-  var m = mat4();
-
-  switch (Id) {
-    case RootId:
-      m = rotate(theta[RootId], 0, 1, 0);
-      figure[RootId] = createNode(m, drawRoot, null, LClavId);
-      break;
-
-    case LClavId:
-      m = translate(0.0, RootHeight, 0.0);
-      m = mult(m, rotate(theta[LClavId], 0, 0, 1));
-      figure[LClavId] = createNode(m, drawLClav, RClavId, LScapulaJointId);
-      break;
-
-    case LScapulaJointId:
-      m = translate(4.0, 0.0, 0.0);
-      m = mult(m, rotate(theta[LScapulaJointId], 0, 0, 1));
-      figure[LScapulaJointId] = createNode(
-        m,
-        drawLScapulaJoint,
-        null,
-        LShoulderJointId
-      );
-      break;
-
-    case LShoulderJointId:
-      m = translate(4.00268, -11.084213, 10.770061);
-      m = mult(m, rotate(theta[LShoulderJointId], 0, 0, 1));
-      figure[LShoulderJointId] = createNode(
-        m,
-        drawLShoulderJoint,
-        null,
-        LElbowJointId
-      );
-      break;
-
-    case LElbowJointId:
-      m = translate(2.147804, -15.16102, -8.035202);
-      m = mult(m, rotate(theta[LElbowJointId], 0, 0, 1));
-      figure[LElbowJointId] = createNode(
-        m,
-        drawLElbowJoint,
-        null,
-        LWristJointId
-      );
-      break;
-
-    case LWristJointId:
-      m = translate(-2.240269, -20.029085, -9.040068);
-      m = mult(m, rotate(theta[LWristJointId], 0, 0, 1));
-      figure[LWristJointId] = createNode(m, drawLWristJoint, null, LPawJointId);
-      break;
-
-    case LPawJointId:
-      m = translate(0.706234, -5.721245, 1.83493);
-      m = mult(m, rotate(theta[LPawJointId], 0, 0, 1));
-      figure[LPawJointId] = createNode(m, drawLPawJoint, null, null);
-      break;
-
-    case RClavId:
-      m = translate(0.0, RootHeight, 0.0);
-      m = mult(m, rotate(theta[RClavId], 0, 0, -1));
-      figure[RClavId] = createNode(
-        m,
-        drawRClav,
-        RootSpineDummyId,
-        RScapulaJointId
-      );
-      break;
-
+    var m = mat4();
+  
+    switch (Id) {
+      case RootId:
+        m = rotate(theta[RootId], 0, 1, 0);
+        figure[RootId] = createNode(m, drawRoot, null, LClavId);
+        break;
+  
+      case LClavId:
+        m = translate(0.0, RootHeight, 0.0);
+        m = mult(m, rotate(theta[LClavId], 0, 0, 1));
+        figure[LClavId] = createNode(m, drawLClav, RClavId, LScapulaJointId);
+        break;
+  
+      case LScapulaJointId:
+        m = translate(4.0, 0.0, 0.0);
+        m = mult(m, rotate(theta[LScapulaJointId], 0, 0, 1));
+        figure[LScapulaJointId] = createNode(m, drawLScapulaJoint, null, LShoulderJointId);
+        break;
+  
+      case LShoulderJointId:
+        m = translate(4.00268, -11.084213, 10.770061);
+        m = mult(m, rotate(theta[LShoulderJointId], 0, 0, 1));
+        figure[LShoulderJointId] = createNode(m, drawLShoulderJoint, null, LElbowJointId);
+        break;
+  
+      case LElbowJointId:
+        m = translate(2.147804, -15.16102, -8.035202);
+        m = mult(m, rotate(theta[LElbowJointId], 0, 0, 1));
+        figure[LElbowJointId] = createNode(m, drawLElbowJoint, null, LWristJointId);
+        break;
+  
+      case LWristJointId:
+        m = translate(-2.240269, -20.029085, -9.040068);
+        m = mult(m, rotate(theta[LWristJointId], 0, 0, 1));
+        figure[LWristJointId] = createNode(m, drawLWristJoint, null, LPawJointId);
+        break;
+  
+      case LPawJointId:
+        m = translate(0.706234, -5.721245, 1.83493);
+        m = mult(m, rotate(theta[LPawJointId], 0, 0, 1));
+        figure[LPawJointId] = createNode(m, drawLPawJoint, null, null);
+        break;
+  
       case RClavId:
         m = translate(0.0, RootHeight, 0.0);
         m = mult(m, rotate(theta[RClavId], 0, 0, -1));
-        figure[RClavId] = createNode(
-          m,
-          drawRClav,
-          null,
-          RScapulaJointId
-        );
+        figure[RClavId] = createNode(m, drawRClav, RootSpineDummyId, RScapulaJointId);
         break;
-
-    case RScapulaJointId:
-      m = translate(-4.0, 0.0, 0.0);
-      m = mult(m, rotate(theta[RScapulaJointId], 0, 0, -1));
-      figure[RScapulaJointId] = createNode(
-        m,
-        drawRScapulaJoint,
-        null,
-        RShoulderJointId
-      );
-      break;
-
-    case RShoulderJointId:
-      m = translate(-4.614829, -11.686035, 9.889533);
-      m = mult(m, rotate(theta[RShoulderJointId], 0, 0, -1));
-      figure[RShoulderJointId] = createNode(
-        m,
-        drawRShoulderJoint,
-        null,
-        RElbowJointId
-      );
-      break;
-
-    case RElbowJointId:
-      m = translate(-0.160743, -16.404388, -5.491836);
-      m = mult(m, rotate(theta[RElbowJointId], 0, 0, -1));
-      figure[RElbowJointId] = createNode(
-        m,
-        drawRElbowJoint,
-        null,
-        RWristJointId
-      );
-      break;
-
-    case RWristJointId:
-      m = translate(2.412016, -21.93568, 1.190901);
-      m = mult(m, rotate(theta[RWristJointId], 0, 0, -1));
-      figure[RWristJointId] = createNode(m, drawRWristJoint, null, RPawJointId);
-      break;
-
-    case RPawJointId:
-      m = translate(-0.535018, -3.351765, 3.806499);
-      m = mult(m, rotate(theta[RPawJointId], 0, 0, -1));
-      figure[RPawJointId] = createNode(m, drawRPawJoint, null, null);
-      break;
-    // Initializing the spine joints
-    case Spine1Id:
-      m = translate(0.0, -0.0, -3.827275);
-      m = mult(m, rotate(theta[Spine1Id], 0, 1, 0));
-      figure[Spine1Id] = createNode(m, drawSpine1, Spine2Id, null);
-      break;
-
-    case Spine2Id:
-      m = translate(0.000001, -0.000004, -16.93926);
-      m = mult(m, rotate(theta[Spine2Id], 0, 1, 0));
-      figure[Spine2Id] = createNode(m, drawSpine2, Spine3Id, null);
-      break;
-
-    case Spine3Id:
-      m = translate(0.000002, -0.000004, -14.393892);
-      m = mult(m, rotate(theta[Spine3Id], 0, 1, 0));
-      figure[Spine3Id] = createNode(m, drawSpine3, PelvisRootId, null);
-      break;
-
-    // Initializing the pelvis joints
-    case PelvisRootId:
-      m = translate(0.000002, -0.000004, -14.39389);
-      m = mult(m, rotate(theta[PelvisRootId], 0, 1, 0));
-      figure[PelvisRootId] = createNode(
-        m,
-        drawPelvisRoot,
-        LPelvisId,
-        RPelvisId
-      );
-      break;
-
-    case LPelvisId:
-      m = translate(0.0, 0.0, 0.0); // Assuming the initial offset for simplification
-      m = mult(m, rotate(theta[LPelvisId], 0, 1, 0));
-      figure[LPelvisId] = createNode(m, drawLPelvis, LFemurJointId, null);
-      break;
-
-    case RPelvisId:
-      m = translate(0.0, 0.0, 0.0); // Assuming the initial offset for simplification
-      m = mult(m, rotate(theta[RPelvisId], 0, 1, 0));
-      figure[RPelvisId] = createNode(m, drawRPelvis, RFemurJointId, null);
-      break;
-
-    case LFemurJointId:
-      m = translate(8.31808, -6.780921, -6.728058);
-      m = mult(m, rotate(theta[LFemurJointId], 0, 1, 0));
-      figure[LFemurJointId] = createNode(
-        m,
-        drawLFemurJoint,
-        LTibiaJointId,
-        null
-      );
-      break;
-
-    case RFemurJointId:
-      m = translate(-8.082922, -7.104604, -6.553699);
-      m = mult(m, rotate(theta[RFemurJointId], 0, 1, 0));
-      figure[RFemurJointId] = createNode(
-        m,
-        drawRFemurJoint,
-        RTibiaJointId,
-        null
-      );
-      break;
-
-    case LTibiaJointId:
-      m = translate(4.762119, -18.232956, 12.109562);
-      m = mult(m, rotate(theta[LTibiaJointId], 0, 1, 0));
-      figure[LTibiaJointId] = createNode(
-        m,
-        drawLTibiaJoint,
-        LAnkleJointId,
-        null
-      );
-      break;
-
-    case RTibiaJointId:
-      m = translate(-3.034004, -18.950596, 11.551201);
-      m = mult(m, rotate(theta[RTibiaJointId], 0, 1, 0));
-      figure[RTibiaJointId] = createNode(
-        m,
-        drawRTibiaJoint,
-        RAnkleJointId,
-        null
-      );
-      break;
-
-    case LAnkleJointId:
-      m = translate(1.748854, -18.426315, -12.690487);
-      m = mult(m, rotate(theta[LAnkleJointId], 0, 1, 0));
-      figure[LAnkleJointId] = createNode(
-        m,
-        drawLAnkleJoint,
-        LFootJointId,
-        null
-      );
-      break;
-
-    case RAnkleJointId:
-      m = translate(0.163292, -19.936808, -10.210636);
-      m = mult(m, rotate(theta[RAnkleJointId], 0, 1, 0));
-      figure[RAnkleJointId] = createNode(
-        m,
-        drawRAnkleJoint,
-        RFootJointId,
-        null
-      );
-      break;
-
-    case LFootJointId:
-      m = translate(2.893215, -10.324425, 3.420891);
-      m = mult(m, rotate(theta[LFootJointId], 0, 1, 0));
-      figure[LFootJointId] = createNode(m, drawLFoot, null, null);
-      break;
-
-    case RFootJointId:
-      m = translate(-0.79368, -9.967937, 0.101715);
-      m = mult(m, rotate(theta[RFootJointId], 0, 1, 0));
-      figure[RFootJointId] = createNode(m, drawRFoot, null, null);
-      break;
-
-    // Neck and head joints
-    case Neck1Id:
-      m = translate(0.0, 4.185544, 5.729186);
-      m = mult(m, rotate(theta[Neck1Id], 0, 1, 0));
-      figure[Neck1Id] = createNode(m, drawNeck1, Neck2Id, null);
-      break;
-
-    case Neck2Id:
-      m = translate(2.125778, 5.862308, 7.100437);
-      m = mult(m, rotate(theta[Neck2Id], 0, 1, 0));
-      figure[Neck2Id] = createNode(m, drawNeck2, HeadId, null);
-      break;
-
-    case HeadId:
-      m = translate(-4.381103, 5.689912, 1.80198);
-      m = mult(m, rotate(theta[HeadId], 0, 1, 0));
-      figure[HeadId] = createNode(m, drawHead, null, null);
-      break;
-
-    case RootSpineDummyId:
-    m = translate(0.0, 0.0, 0.0);  // 예시로 위치를 (0,0,0)으로 설정
-    m = mult(m, rotate(theta[RootSpineDummyId], 0, 1, 0));
-    figure[RootSpineDummyId] = createNode(m, drawRootSpineDummy, Spine1Id, null);
-    break;
-    
-    case RootNeckId:
-    m = translate(0.0, 0.0, 0.0);  // 예시로 위치를 (0,0,0)으로 설정
-    m = mult(m, rotate(theta[RootNeckId], 0, 1, 0));
-    figure[RootNeckId] = createNode(m, drawRootNeck, Neck1Id, null);
-    break;
-
+  
+      case RScapulaJointId:
+        m = translate(-4.0, 0.0, 0.0);
+        m = mult(m, rotate(theta[RScapulaJointId], 0, 0, -1));
+        figure[RScapulaJointId] = createNode(m, drawRScapulaJoint, null, RShoulderJointId);
+        break;
+  
+      case RShoulderJointId:
+        m = translate(-4.614829, -11.686035, 9.889533);
+        m = mult(m, rotate(theta[RShoulderJointId], 0, 0, -1));
+        figure[RShoulderJointId] = createNode(m, drawRShoulderJoint, null, RElbowJointId);
+        break;
+  
+      case RElbowJointId:
+        m = translate(-0.160743, -16.404388, -5.491836);
+        m = mult(m, rotate(theta[RElbowJointId], 0, 0, -1));
+        figure[RElbowJointId] = createNode(m, drawRElbowJoint, null, RWristJointId);
+        break;
+  
+      case RWristJointId:
+        m = translate(2.412016, -21.93568, 1.190901);
+        m = mult(m, rotate(theta[RWristJointId], 0, 0, -1));
+        figure[RWristJointId] = createNode(m, drawRWristJoint, null, RPawJointId);
+        break;
+  
+      case RPawJointId:
+        m = translate(-0.535018, -3.351765, 3.806499);
+        m = mult(m, rotate(theta[RPawJointId], 0, 0, -1));
+        figure[RPawJointId] = createNode(m, drawRPawJoint, null, null);
+        break;
+  
+      case RootSpineDummyId:
+        m = translate(0.0, 0.0, 0.0);
+        m = mult(m, rotate(theta[RootSpineDummyId], 0, 1, 0));
+        figure[RootSpineDummyId] = createNode(m, drawRootSpineDummy, Spine1Id, null);
+        break;
+  
+      case Spine1Id:
+        m = translate(0.0, -0.0, -3.827275);
+        m = mult(m, rotate(theta[Spine1Id], 0, 1, 0));
+        figure[Spine1Id] = createNode(m, drawSpine1, Spine2Id, null);
+        break;
+  
+      case Spine2Id:
+        m = translate(0.000001, -0.000004, -16.93926);
+        m = mult(m, rotate(theta[Spine2Id], 0, 1, 0));
+        figure[Spine2Id] = createNode(m, drawSpine2, Spine3Id, null);
+        break;
+  
+      case Spine3Id:
+        m = translate(0.000002, -0.000004, -14.393892);
+        m = mult(m, rotate(theta[Spine3Id], 0, 1, 0));
+        figure[Spine3Id] = createNode(m, drawSpine3, PelvisRootId, null);
+        break;
+  
+      case PelvisRootId:
+        m = translate(0.000002, -0.000004, -14.39389);
+        m = mult(m, rotate(theta[PelvisRootId], 0, 1, 0));
+        figure[PelvisRootId] = createNode(m, drawPelvisRoot, LPelvisId, RPelvisId);
+        break;
+  
+      case LPelvisId:
+        m = translate(0.0, 0.0, 0.0);
+        m = mult(m, rotate(theta[LPelvisId], 0, 1, 0));
+        figure[LPelvisId] = createNode(m, drawLPelvis, LFemurJointId, null);
+        break;
+  
+      case RPelvisId:
+        m = translate(0.0, 0.0, 0.0);
+        m = mult(m, rotate(theta[RPelvisId], 0, 1, 0));
+        figure[RPelvisId] = createNode(m, drawRPelvis, RFemurJointId, null);
+        break;
+  
+      case LFemurJointId:
+        m = translate(8.31808, -6.780921, -6.728058);
+        m = mult(m, rotate(theta[LFemurJointId], 0, 1, 0));
+        figure[LFemurJointId] = createNode(m, drawLFemurJoint, LTibiaJointId, null);
+        break;
+  
+      case RFemurJointId:
+        m = translate(-8.082922, -7.104604, -6.553699);
+        m = mult(m, rotate(theta[RFemurJointId], 0, 1, 0));
+        figure[RFemurJointId] = createNode(m, drawRFemurJoint, RTibiaJointId, null);
+        break;
+  
+      case LTibiaJointId:
+        m = translate(4.762119, -18.232956, 12.109562);
+        m = mult(m, rotate(theta[LTibiaJointId], 0, 1, 0));
+        figure[LTibiaJointId] = createNode(m, drawLTibiaJoint, LAnkleJointId, null);
+        break;
+  
+      case RTibiaJointId:
+        m = translate(-3.034004, -18.950596, 11.551201);
+        m = mult(m, rotate(theta[RTibiaJointId], 0, 1, 0));
+        figure[RTibiaJointId] = createNode(m, drawRTibiaJoint, RAnkleJointId, null);
+        break;
+  
+      case LAnkleJointId:
+        m = translate(1.748854, -18.426315, -12.690487);
+        m = mult(m, rotate(theta[LAnkleJointId], 0, 1, 0));
+        figure[LAnkleJointId] = createNode(m, drawLAnkleJoint, LFootJointId, null);
+        break;
+  
+      case RAnkleJointId:
+        m = translate(0.163292, -19.936808, -10.210636);
+        m = mult(m, rotate(theta[RAnkleJointId], 0, 1, 0));
+        figure[RAnkleJointId] = createNode(m, drawRAnkleJoint, RFootJointId, null);
+        break;
+  
+      case LFootJointId:
+        m = translate(2.893215, -10.324425, 3.420891);
+        m = mult(m, rotate(theta[LFootJointId], 0, 1, 0));
+        figure[LFootJointId] = createNode(m, drawLFoot, null, null);
+        break;
+  
+      case RFootJointId:
+        m = translate(-0.79368, -9.967937, 0.101715);
+        m = mult(m, rotate(theta[RFootJointId], 0, 1, 0));
+        figure[RFootJointId] = createNode(m, drawRFoot, null, null);
+        break;
+  
+      case Neck1Id:
+        m = translate(0.0, 4.185544, 5.729186);
+        m = mult(m, rotate(theta[Neck1Id], 0, 1, 0));
+        figure[Neck1Id] = createNode(m, drawNeck1, Neck2Id, null);
+        break;
+  
+      case Neck2Id:
+        m = translate(2.125778, 5.862308, 7.100437);
+        m = mult(m, rotate(theta[Neck2Id], 0, 1, 0));
+        figure[Neck2Id] = createNode(m, drawNeck2, HeadId, null);
+        break;
+  
+      case HeadId:
+        m = translate(-4.381103, 5.689912, 1.80198);
+        m = mult(m, rotate(theta[HeadId], 0, 1, 0));
+        figure[HeadId] = createNode(m, drawHead, null, null);
+        break;
+    }
   }
-}
+  
 
 function traverse(Id) {
   if (Id == null) return;
