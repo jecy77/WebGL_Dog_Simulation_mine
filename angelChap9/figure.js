@@ -183,6 +183,9 @@ function traverse(Id) {
 
    if(Id == null) return;
    stack.push(modelViewMatrix);
+   console.log(Id);
+   console.log(modelViewMatrix);
+   console.log(figure[Id].transform);
    modelViewMatrix = mult(modelViewMatrix, figure[Id].transform);
    figure[Id].render();
    if(figure[Id].child != null) traverse(figure[Id].child);
