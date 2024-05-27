@@ -169,7 +169,7 @@ function setup() {
 //main draw function
 function draw() {
     background(0);
-    ambientLight(150);   // 빛부분은 빼기 
+    ambientLight(150);
     directionalLight(255, 255, 255, 0, 0, 1);
 
     if (frame < frameNum-1){  //iterate
@@ -414,8 +414,6 @@ function draw() {
 	pop();
 }
 
-// 이 아래는 바꿀 필요 없음
-
 //=======================================================================
 //PARSE THE BVH FILE
 //=======================================================================
@@ -476,102 +474,129 @@ function moveArrayBuilder(moveData) {
 //=======================================================================
 //APPLY MOTION ANIMATION FROM BVH
 //=======================================================================
+
+//이 아래 부분만 우리 bvh 파일에 맞는 구조로 수정했음 
 function getNextFrame(frame) {
-	moveX = moveArray[frame][0];
-	moveY = moveArray[frame][1];
-	moveZ = moveArray[frame][2];
+	move1X = moveArray[frame][0];
+	move1Y = moveArray[frame][1];
+	move1Z = moveArray[frame][2];
 
-	hipsX = moveArray[frame][3];
-	hipsY = moveArray[frame][4];
-	hipsZ = moveArray[frame][5];
+	RootX = moveArray[frame][3];
+	RootY = moveArray[frame][4];
+	RootZ = moveArray[frame][5];
+    // move  (6포지션인거 더 추가해야됨)
 
-	leftUpLegX = moveArray[frame][6];
-	leftUpLegY = moveArray[frame][7];
-	leftUpLegZ = moveArray[frame][8];
+	leftClavX = moveArray[frame][6];
+	leftClavY = moveArray[frame][7];
+	leftClavZ = moveArray[frame][8];
 
-	leftLowLegX = moveArray[frame][9];
-	leftLowLegY = moveArray[frame][10];
-	leftLowLegZ = moveArray[frame][11];
+	leftScapulaX = moveArray[frame][9];
+	leftScapulaY = moveArray[frame][10];
+	leftScapulaZ = moveArray[frame][11];
 
-	leftFootX = moveArray[frame][12];
-	leftFootY = moveArray[frame][13];
-	leftFootZ = moveArray[frame][14];
+	leftShoulderX = moveArray[frame][12];
+	leftShoulderY = moveArray[frame][13];
+	leftShoulderZ = moveArray[frame][14];
 
-	leftToeX = moveArray[frame][15];
-	leftToeY = moveArray[frame][16];
-	leftToeZ = moveArray[frame][17];
+	leftElbowX = moveArray[frame][15];
+	leftElbowY = moveArray[frame][16];
+	leftElbowZ = moveArray[frame][17];
+    
+	leftWristX = moveArray[frame][18];
+	leftWristY = moveArray[frame][19];
+	leftWristZ = moveArray[frame][20];
 
-	rightUpLegX = moveArray[frame][18];
-	rightUpLegY = moveArray[frame][19];
-	rightUpLegZ = moveArray[frame][20];
+	rightClavX = moveArray[frame][21];
+	rightClavY = moveArray[frame][22];
+	rightClavZ = moveArray[frame][23];
 
-	rightLowLegX = moveArray[frame][21];
-	rightLowLegY = moveArray[frame][22];
-	rightLowLegZ = moveArray[frame][23];
+	rightScapulaX = moveArray[frame][24];
+	rightScapulaY = moveArray[frame][25];
+	rightScapulaZ = moveArray[frame][26];
 
-	rightFootX = moveArray[frame][24];
-	rightFootY = moveArray[frame][25];
-	rightFootZ = moveArray[frame][26];
+	rightShoulderX = moveArray[frame][27];
+	rightShoulderY = moveArray[frame][28];
+	rightShoulderZ = moveArray[frame][29];
 
-	rightToeX = moveArray[frame][27];
-	rightToeY = moveArray[frame][28];
-	rightToeZ = moveArray[frame][29];
+	rightElbowX = moveArray[frame][30];
+	rightElbowY = moveArray[frame][31];
+	rightElbowZ = moveArray[frame][32];
 
-	spineX = moveArray[frame][30];
-	spineY = moveArray[frame][31];
-	spineZ = moveArray[frame][32];
+	rightWristX = moveArray[frame][33];
+	rightWristY = moveArray[frame][34];
+	rightWristZ = moveArray[frame][35];
 
-	spine1X = moveArray[frame][33];
-	spine1Y = moveArray[frame][34];
-	spine1Z = moveArray[frame][35];
+	SpineX = moveArray[frame][36];
+	SpineY = moveArray[frame][37];
+	SpineZ = moveArray[frame][38];
 
-	neckX = moveArray[frame][36];
-	neckY = moveArray[frame][37];
-	neckZ = moveArray[frame][38];
+	Spine1X = moveArray[frame][39];
+	Spine2Y = moveArray[frame][40];
+	Spine3Z = moveArray[frame][41];
 
-	headX = moveArray[frame][39];
-	headY = moveArray[frame][40];
-	headZ = moveArray[frame][41];
+	PelvisX = moveArray[frame][42];
+	PelvisY = moveArray[frame][43];
+	PelvisZ = moveArray[frame][44];
 
-	leftShoulderX = moveArray[frame][42];
-	leftShoulderY = moveArray[frame][43];
-	leftShoulderZ = moveArray[frame][44];
+	leftPelvisX = moveArray[frame][45];
+	leftPelvisY = moveArray[frame][46];
+	leftPelvisZ = moveArray[frame][47];
 
-	leftUpArmX = moveArray[frame][45];
-	leftUpArmY = moveArray[frame][46];
-	leftUpArmZ = moveArray[frame][47];
+	leftFemurX = moveArray[frame][48];
+	leftFemurY = moveArray[frame][49];
+	leftFemurZ = moveArray[frame][50];
 
-	leftLowArmX = moveArray[frame][48];
-	leftLowArmY = moveArray[frame][49];
-	leftLowArmZ = moveArray[frame][50];
+	leftTibiaX = moveArray[frame][51];
+	leftTibiaY = moveArray[frame][52];
+	leftTibiaZ = moveArray[frame][53];
 
-	leftHandX = moveArray[frame][51];
-	leftHandY = moveArray[frame][52];
-	leftHandZ = moveArray[frame][53];
+	leftAnkleX = moveArray[frame][57];
+	leftAnkleY = moveArray[frame][58];
+	leftAnkleZ = moveArray[frame][59];
 
-	leftThumbX = moveArray[frame][57];
-	leftThumbY = moveArray[frame][58];
-	leftThumbZ = moveArray[frame][59];
+	leftFootX = moveArray[frame][60];
+	leftFootY = moveArray[frame][61];
+	leftFootZ = moveArray[frame][62];
 
-	rightShoulderX = moveArray[frame][60];
-	rightShoulderY = moveArray[frame][61];
-	rightShoulderZ = moveArray[frame][62];
+	rightPelvisX = moveArray[frame][63];
+	rightPelvisY = moveArray[frame][64];
+	rightPelvisZ = moveArray[frame][65];
 
-	rightUpArmX = moveArray[frame][63];
-	rightUpArmY = moveArray[frame][64];
-	rightUpArmZ = moveArray[frame][65];
+	rightFemurX = moveArray[frame][66];
+	rightFemurY = moveArray[frame][67];
+	rightFemurZ = moveArray[frame][68];
 
-	rightLowArmX = moveArray[frame][66];
-	rightLowArmY = moveArray[frame][67];
-	rightLowArmZ = moveArray[frame][68];
+	rightTibiaX = moveArray[frame][69];
+	rightTibiaY = moveArray[frame][70];
+	rightTibiaZ = moveArray[frame][71];
 
-	rightHandX = moveArray[frame][69];
-	rightHandY = moveArray[frame][71];
-	rightHandZ = moveArray[frame][72];
+	rightAnkleX = moveArray[frame][72];
+	rightAnkleY = moveArray[frame][73];
+	rightAnkleZ = moveArray[frame][74];
 
-	rightThumbX = moveArray[frame][75];
-	rightThumbY = moveArray[frame][76];
-	rightThumbZ = moveArray[frame][77];
+    rightFootX = moveArray[frame][75];
+	rightFootY = moveArray[frame][76];
+	rightFootZ = moveArray[frame][77];
+
+    NeckX = moveArray[frame][78];
+	NeckY = moveArray[frame][79];
+	NeckZ = moveArray[frame][80];
+
+    Neck1X = moveArray[frame][81];
+	Neck1Y = moveArray[frame][82];
+	Neck1Z = moveArray[frame][83];
+
+    Neck2X = moveArray[frame][84];
+	Neck2Y = moveArray[frame][85];
+	Neck2Z = moveArray[frame][86];
+
+    Head = moveArray[frame][87];
+	Head = moveArray[frame][88];
+	Head = moveArray[frame][89];
+
+    End = moveArray[frame][90];
+	End = moveArray[frame][91];
+	End = moveArray[frame][92];
 }
 
 function runAgain(){
