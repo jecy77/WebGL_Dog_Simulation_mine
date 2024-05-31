@@ -25,10 +25,10 @@ var lightAmbient = vec4(0.9, 0.9, 0.9, 1.0 );
 var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 0.0, 1.0 );
 
-//gold
-var materialAmbient = vec4( 0.5, 0.5, 0.5, 1.0 );
-var materialDiffuse = vec4( 0.7, 0.4, 0.0, 1.0);
-var materialSpecular = vec4( 0.628281, 0.555802, 0.366065, 1.0 );
+// 골든 리트리버 색 https://encycolorpedia.kr/f1af09
+var materialAmbient = vec4(0.9451, 0.6863, 0.0353, 1.0);
+var materialDiffuse = vec4(0.5, 0.5, 0.5, 1.0);
+var materialSpecular = vec4(0.5, 0.5, 0.5, 1.0);
 var materialShininess = 10.0;
 
 var torsoId = 0;
