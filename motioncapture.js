@@ -76,7 +76,7 @@ var stack = [];
 //var figure = [];
 var figure = [];
 
-var torsoX = 0, torsoY = 0, torsoZ = 0, torsoX2 = 0, torsoY2 = 0, torsoZ2 = 0, torsota = 0, torsoR2 = 0;
+var torsoX = 0, torsoY = 0, torsoZ = 0, torsoR2 = 0;
 var flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false;
 var flag9 = false, flag10 = false, flag11 = false, flag12 = false, flag13 = false, flag14 = false; 
 var check = false, check2 = true, check3 = true, check4 = true, check5 = true, check6 = true, check7 = true;
