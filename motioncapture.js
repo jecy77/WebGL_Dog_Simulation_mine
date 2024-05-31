@@ -160,7 +160,7 @@ function initNodes(Id) {
     case leftUpperArmId:
 
     m2 = translate(0.5*torsoWidth, 0.0, -0.5*torsoWidth);
-	m2 = mult(m2, rotate(theta[leftUpperArmId], 1, 0, 0));
+	m2 = mult(m2, rotate(theta[leftUpperArmId], 0, 0, 1));
 	m2 = mult(m2, rotate(dogUpperArmta, 0, 0, 1));
     figure[leftUpperArmId] = createNode( m2, leftUpperArm2, rightUpperArmId, leftLowerArmId );
     break;
@@ -168,49 +168,49 @@ function initNodes(Id) {
     case rightUpperArmId:
 
     m2 = translate(0.5*torsoWidth, 0.0, 0.5*torsoWidth);
-	m2 = mult(m2, rotate(theta[rightUpperArmId], 1, 0, 0));
+	m2 = mult(m2, rotate(theta[rightUpperArmId], 0, 0, 1));
     figure[rightUpperArmId] = createNode( m2, rightUpperArm2, leftUpperLegId, rightLowerArmId );
     break;
 
    case leftUpperLegId:
 
     m2 = translate(-0.5*torsoWidth, 0.0, -0.5*torsoWidth);
-	m2 = mult(m2 , rotate(theta[leftUpperLegId], 1, 0, 0));
+	m2 = mult(m2 , rotate(theta[leftUpperLegId], 0, 0, 1));
     figure[leftUpperLegId] = createNode( m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId );
     break;
 
     case rightUpperLegId:
 
     m2 = translate(-0.5*torsoWidth, 0.0, 0.5*torsoWidth);
-	m2 = mult(m2, rotate(theta[rightUpperLegId], 1, 0, 0));
+	m2 = mult(m2, rotate(theta[rightUpperLegId], 0, 0, 1));
     figure[rightUpperLegId] = createNode( m2, rightUpperLeg2, tailId, rightLowerLegId );
     break;
 
     case leftLowerArmId:
 
     m2 = translate(0.0, -upperArmHeight, 0.0);
-    m2 = mult(m2, rotate(theta[leftLowerArmId], 1, 0, 0));
+    m2 = mult(m2, rotate(theta[leftLowerArmId], 0, 0, 1));
     figure[leftLowerArmId] = createNode( m2, leftLowerArm2, null, null );
     break;
 
     case rightLowerArmId:
 
     m2 = translate(0.0, -upperArmHeight, 0.0);
-    m2 = mult(m2, rotate(theta[rightLowerArmId], 1, 0, 0));
+    m2 = mult(m2, rotate(theta[rightLowerArmId], 0, 0, 1));
     figure[rightLowerArmId] = createNode( m2, rightLowerArm2, null, null );
     break;
 
     case leftLowerLegId:
 
     m2 = translate(0.2, -upperLegHeight, 0.0);
-    m2 = mult(m2, rotate(theta[leftLowerLegId], 1, 0, 0));
+    m2 = mult(m2, rotate(theta[leftLowerLegId], 0, 0, 1));
     figure[leftLowerLegId] = createNode( m2, leftLowerLeg2, null, null );
     break;
 
     case rightLowerLegId:
 
     m2 = translate(0.0, -upperLegHeight, 0.0);
-    m2 = mult(m2, rotate(theta[rightLowerLegId], 1, 0, 0));
+    m2 = mult(m2, rotate(theta[rightLowerLegId], 0, 0, 1));
     figure[rightLowerLegId] = createNode( m2, rightLowerLeg2, null, null );
     break;
 
