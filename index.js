@@ -128,7 +128,6 @@ function createNode(transform, render, sibling, child){
     return node;
 }
 
-
 function initNodes2(Id) {
 
     var m2 = mat4();
