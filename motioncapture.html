@@ -88,7 +88,12 @@ void main()
                 </div><br />
                 
                 <div>
-                    walk angle -180 <input id="walk" type="range" min="-180" max="180" step="10" value="0" />
+                    walk angle -180 <input id="walk" type="range" min="-70" max="70" step="5" value="0" />
+                    180
+                </div><br />
+
+                <div>
+                    run angle -180 <input id="run" type="range" min="-180" max="180" step="10" value="0" />
                     180
                 </div><br />
 
@@ -151,7 +156,7 @@ void main()
                 <button id="motioncapture_stop">motioncapture stop</button>
                 <button id="motioncapture_print">motioncapture print</button>
                 <button id="motioncapture_play">motioncapture play</button>
-                <button id="motioncapture_reset">motioncapture reset</button>
+                <button id="reset_all" onclick="location.reload()">reset all</button>
             </div>
         </div>
     </div>
