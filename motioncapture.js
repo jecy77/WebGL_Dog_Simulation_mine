@@ -47,21 +47,21 @@ var tailId = 11;
 var leftEarId = 12;
 var rightEarId = 13;
 
-var torsoHeight = 2.8;
-var torsoWidth = 3.5;
-var upperArmHeight = 1.0;
-var lowerArmHeight = 1.0;
-var upperArmWidth  = 0.7;
-var lowerArmWidth  = 0.5;
-var upperLegWidth  = 0.7;
-var lowerLegWidth  = 0.5;
-var lowerLegHeight = 1.0;
-var upperLegHeight = 0.7;
-var headHeight = 1.3;
-var headWidth = 1.3;
+var torsoHeight = 2;
+var torsoWidth = 4;
+var upperArmHeight = 0.5;
+var lowerArmHeight = 0.5;
+var upperArmWidth  = 1;
+var lowerArmWidth  = 1;
+var upperLegWidth  = 1;
+var lowerLegWidth  = 1;
+var lowerLegHeight = 0.5;
+var upperLegHeight = 0.5;
+var headHeight = 1.8;
+var headWidth = 2;
 var tailHeight = 2.0;
 var tailWidth = 0.5;
-var earHeight = 0.6;
+var earHeight = 2;
 var earWidth = 0.5;
 
 var numNodes = 10;
@@ -69,7 +69,7 @@ var numAngles = 11;
 var numNodes = 14;
 
 //var theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-var theta = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0, 0, 0];
+var theta = [225, 0, 0, 0, 0, 0, 5, -10, 5, -10, -80, 0, 0, 0];
 
 //var stack = [];
 var stack = [];
@@ -139,20 +139,20 @@ function initNodes(Id) {
     case head2Id:
 
 
-    m2 = translate(0.5*torsoWidth, torsoHeight, 0.0);
-	m2 = mult(m2, rotate(theta[head1Id], 1, 0, 0))
+    m2 = translate(0.5*torsoWidth, 0.9*torsoHeight, -1);
+	m2 = mult(m2, rotate(theta[head1Id], 0, 0, 1))
 	m2 = mult(m2, rotate(theta[head2Id], 0, 1, 0));
 
     figure[headId] = createNode( m2, head2, leftUpperArmId, leftEarId);
     break;
 
 	case leftEarId:
-	m2 = translate(0, headHeight, 0.0);
+	m2 = translate(0, headHeight, 0.5*headWidth);
     figure[leftEarId] = createNode( m2, leftear, rightEarId, null );
     break;
 
 	case rightEarId:
-	m2 = translate(1.2*headWidth, headHeight, 0.0);
+	m2 = translate(1.2*headWidth, headHeight, 0.5*headWidth);
     figure[rightEarId] = createNode( m2, rightear, null, null );
     break;
 
@@ -218,7 +218,7 @@ function initNodes(Id) {
 
     
 	
-	m2 = translate(-(torsoWidth/1.75), 0.8*torsoHeight, 0);
+	m2 = translate(-(torsoWidth/1.75), 0.5*torsoHeight, 0);
     m2 = mult(m2, rotate(theta[tailId], 1, 0, 0));
 	m2 = mult(m2, rotate(tailta, 0, 0, 1));
     figure[tailId] = createNode( m2, tail, null, null );
@@ -252,7 +252,7 @@ function torso2() {
 function head2() {
 
     instanceMatrix = mult(modelViewMatrix, translate(0.5 * headWidth, 0.5 * headHeight, 0.0 ));
-	instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth) );
+	instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, 1.5*headWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
@@ -323,14 +323,14 @@ function rightLowerLeg2() {
 
 function tail() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * tailWidth, 0.5 * tailHeight, 0.0) );
+    instanceMatrix = mult(modelViewMatrix, translate(0.5 * tailWidth, 0.8 * tailHeight, 0.0) );
 	instanceMatrix = mult(instanceMatrix, scale4(tailWidth, tailHeight, tailWidth) )
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function leftear() {
-	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0.5 * earHeight, 0.0) );
+	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0) );
 	instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth) )
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
@@ -338,7 +338,7 @@ function leftear() {
 }
 
 function rightear() {
-	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0.5 * earHeight, 0.0) );
+	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0) );
 	instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth) )
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
@@ -480,6 +480,7 @@ window.onload = function init() {
   document.getElementById("head2").oninput = function (event) {
     theta[head2Id] = event.target.value;
     initNodes(head2Id);
+	console.log(theta[head2Id])
     if (isCapturing) capturedMotion.push([...theta]);
   };
 
