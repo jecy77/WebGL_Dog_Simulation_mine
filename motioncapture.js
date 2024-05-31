@@ -130,7 +130,7 @@ function initNodes(Id) {
 	m2 = rotate(theta[torsoId], 0, 1, 0 );
 	m2 = mult(m2, rotate(torsoR, 1, 0, 0));
 	m2 = mult(m2, rotate(torsoR2, 0, 0, 1));
-	m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
+	m2 = mult(m2, translate(torsoX, torsoY, torsoZ));
 	figure[torsoId] = createNode( m2, torso2, null, headId );
     break;
 
@@ -425,66 +425,71 @@ window.onload = function init() {
     var diffuseProduct = mult(lightDiffuse, materialDiffuse);
     var specularProduct = mult(lightSpecular, materialSpecular);
 
-	
-	document.getElementById("slider0").onchange = function(event) {
-        theta[torsoId ] = event.target.value;
-        initNodes(torsoId);
-    };
-
     
-  document.getElementById("slider0").oninput = function (event) {
+  document.getElementById("torso").oninput = function (event) {
     theta[torsoId] = event.target.value;
     initNodes(torsoId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
-  document.getElementById("slider1").oninput = function (event) {
+  document.getElementById("head1").oninput = function (event) {
     theta[head1Id] = event.target.value;
     initNodes(head1Id);
     if (isCapturing) capturedMotion.push([...theta]);
   };
 
-  document.getElementById("slider2").oninput = function (event) {
+  document.getElementById("left_upper_arm").oninput = function (event) {
     theta[leftUpperArmId] = event.target.value;
     initNodes(leftUpperArmId);
   };
-  document.getElementById("slider3").oninput = function (event) {
+  document.getElementById("left_lower_arm").oninput = function (event) {
     theta[leftLowerArmId] = event.target.value;
     initNodes(leftLowerArmId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
 
-  document.getElementById("slider4").oninput = function (event) {
+  document.getElementById("right_upper_arm").oninput = function (event) {
     theta[rightUpperArmId] = event.target.value;
     initNodes(rightUpperArmId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
-  document.getElementById("slider5").oninput = function (event) {
+  document.getElementById("right_lower_arm").oninput = function (event) {
     theta[rightLowerArmId] = event.target.value;
     initNodes(rightLowerArmId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
-  document.getElementById("slider6").oninput = function (event) {
+  document.getElementById("right_upper_leg").oninput = function (event) {
     theta[leftUpperLegId] = event.target.value;
     initNodes(leftUpperLegId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
-  document.getElementById("slider7").oninput = function (event) {
+  document.getElementById("left_lower_leg").oninput = function (event) {
     theta[leftLowerLegId] = event.target.value;
     initNodes(leftLowerLegId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
-  document.getElementById("slider8").oninput = function (event) {
+  document.getElementById("right_upper_leg").oninput = function (event) {
     theta[rightUpperLegId] = event.target.value;
     initNodes(rightUpperLegId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
-  document.getElementById("slider9").oninput = function (event) {
+  document.getElementById("right_lower_leg").oninput = function (event) {
     theta[rightLowerLegId] = event.target.value;
     initNodes(rightLowerLegId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
-  document.getElementById("slider10").oninput = function (event) {
+  document.getElementById("head2").oninput = function (event) {
     theta[head2Id] = event.target.value;
+    initNodes(head2Id);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+
+  document.getElementById("walk").oninput = function (event) {
+    theta[rightUpperArmId] = event.target.value;
+	theta[leftUpperArmId] = -event.target.value;
+	theta[leftUpperLegId] = event.target.value;
+    theta[rightUpperLegId] = -event.target.value;
+	torsoX += 0.3;
+	m2 = mult(m2, translate(torsoX, torsoY, torsoZ));
     initNodes(head2Id);
     if (isCapturing) capturedMotion.push([...theta]);
   };
@@ -503,6 +508,11 @@ window.onload = function init() {
     console.log(JSON.stringify(capturedMotion));
   };
 
+  document.getElementById("motioncapture_reset").oninput = function (event) {
+    capturedMotion = [];
+    console.log("Resetting captured motion");
+  };
+
   document.getElementById("motioncapture_play").onclick = function () {
     console.log("Playing captured motion");
     if (capturedMotion.length > 0) {
@@ -514,14 +524,10 @@ window.onload = function init() {
         if (index >= capturedMotion.length) {
           clearInterval(interval);
         }
-      }, 100); // Change the interval time as needed
+      }, 50); // Change the interval time as needed
     }
   };
   
-  document.getElementById("motioncapture_reset").oninput = function (event) {
-    capturedMotion = [];
-    console.log("Resetting captured motion");
-  };
   
     gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct));
@@ -539,613 +545,7 @@ var render = function() {
 
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		modelViewMatrix = translate(-5.0, -3.0, 3.0);
-		if(flag1 && count1 <= 40){
-			torsoX += 0.3;
-			
-			torsoX2 += 0.2;
-			
-			
-			
-			count1++;
-		}
-		
-			
-		
-		if(flag1 && count1 == 41){
-			flag12 = false, flag13 = false, count9 = 0, turn21 = 12, turn22 = -1;
-			theta[leftUpperLegId] = 180;
-			theta[rightUpperLegId] = 180;
-			theta[rightLowerLegId] = 0;
-			theta[leftLowerLegId] = 0;
-			if(theta[rightUpperArmId] >= 140){
-				theta[rightUpperArmId] -= 2;
-				theta[leftUpperArmId] -= 2;
-			}
-			
-			if(theta[rightUpperArmId] == 138){
-				if(armta2 <= 4){
-					armta1 -= 2;
-					armta2 += 2;
-					
-				}
-				
-				
-				if(armta2 >= 4){
-					flag14 = true;
-					if(torsoX2 >= -7){
-						//torsoZ2 -= 0.2;
-						torsoX2 += 0.2;
-					}
-					else{
-						flag14 = false;
-					}
-				}
-				
-			}
-			
-		}
-		if(flag2){
-			if(count3 <= 22){
-				torsoX += 0.2;
-			
-				count3++;
-			}
-			if(count3 == 23){
-				flag12 = false, flag13 = false, count9 = 0, turn21 = 12, turn22 = -1;
-				theta[leftUpperLegId] = 180;
-				theta[rightUpperLegId] = 180;
-				theta[rightLowerLegId] = 0;
-				theta[leftLowerLegId] = 0;
-				if(armta2 <= 8){
-					armta1 -= 2;
-					armta2 += 2;
-					
-				}
-				
-			}
-			if(armta2 == 10){
-			if(turn1 <= 3){					
-					torsoX2 -= 0.2;	
-					turn1 --;
-					if(turn1 == 0){
-						turn1 = 4;
-						turn2 = 0;
-					}
-				}
-				if(turn2 >= 0){
-					torsoX2 += 0.2;
-					turn2 ++;
-					if(turn2 == 3){
-						turn2 = -1;
-						turn1 = 4;
-					}
-				}
-			}	
-		}
-		if(flag3){
-			if(theta[leftLowerLegId] <= 115){
-				theta[leftLowerLegId] += 2;
-				theta[rightLowerLegId] += 2;
-				
-			}
-			if(theta[rightUpperLegId] >= 79){
-				
-				theta[rightUpperLegId] -= 2;
-				theta[leftUpperLegId] -= 2;
-			}
-			
-			if(torsoY >= -3.4){
-				//torsoY -= 0.2;
-				count4++;
-			}
-			
-			if(count4 == 17){
-				//orsoX = 13.0;
-				if(torsota <= 40)
-					torsota += 2;
-			}
-			if(!flag4){
-				armta2 -= 40;
-				flag4 = true;
-			}
-			if(theta[rightUpperArmId] >= 56)
-					theta[rightUpperArmId] -= 2;
-			
-			if(turn3 <= 30 && theta[rightUpperArmId] == 54){					
-					
-					
-					armta2 += 1;	
-					turn3 --;
-					if(turn3 == 0){
-						turn3 = 31;
-						turn4 = 0;
-						flag5 = true;
-					}
-			}
-				if(turn4 >= 0){
-					//armta1 += 0.2;
-					armta2 -= 1;
-					turn4 ++;
-					if(turn4 == 30){
-						turn4 = -1;
-						turn3 = 30;
-					}
-				}
-			if(turn5 <= 20 && flag5){
-				theta[tailId] -= 2;
-			
-				turn5 --;
-				if(turn5 == 0){
-					turn5 = 21;
-					turn6 = 0;
-				}
-			}
-		
-			if(turn6 >= 0){
-				theta[tailId] += 2;
-			
-				turn6 ++;
-				if(turn6 == 20){
-					turn6 = -1;
-					turn5 = 20;
-				}
-			}
-			if(turn7 <= 20 && flag5){
-				theta[head2Id] += 2;
-			
-				turn7 --;
-				if(turn7 == 0){
-					turn7 = 21;
-					turn8 = 0;
-				}
-			}		
-			if(turn8 >= 0){
-				theta[head2Id] -= 2;
-			
-				turn8 ++;
-				if(turn8 == 20){
-					turn8 = -1;
-					turn7 = 20;
-				}
-			}
-			if(turn9 <= 20 && flag5){
-				torsoR += 1;
-			
-				turn9 --;
-				if(turn9 == 0){
-					turn9 = 21;
-					turn10 = 0;
-				}
-			}		
-			if(turn10 >= 0){
-				torsoR -= 1;
-			
-				turn10 ++;
-				if(turn10 == 20){
-					turn10 = -1;
-					turn9 = 20;
-				}
-			}
-		}
-		if(flag6){
-			
-			theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-			theta = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0, 0, 0];
-			torsoY = 0, torsoZ = 0, torsoY2 = 0, torsoZ2 = 0, torsota = 0;
-			armta1 = 0, armta2 = 0, armta3 = 0, torsoR = 0;
-			turn5 = 20, turn6 = -1, turn7 = 20, turn8 = -1;
-			if(torsoX >= 7){
-				torsoX -= 0.2;
-			}
-		
-		}
-		if(flag7){
-			if(theta[torsoId] >= 15){
-				theta[torsoId] -= 2;
-			}
-			if(theta[rightUpperArmId] >= 140){
-				theta[rightUpperArmId] -= 2;
-				theta[leftUpperArmId] -= 2;
-			}
-			if(lowerArmta2 <= 92){
-				lowerArmta2 += 2;
-			}
-			if(lowerArmta1 >= -78){
-				lowerArmta1 -= 2;
-			}	
-		}
-		if(flag8){
-			flag14 = true;
-			if(torsoX2 <= -1){
-				torsoX2 += 0.2;
-			}
-			else{
-				flag14 = false;
-				if(check6){
-					theta[leftUpperLegId] = 5;
-					theta[rightUpperLegId] = 5;
-					theta[leftUpperArmId] = 0;
-					theta[rightUpperArmId] = 0;
-					count10 = 0, turn23 = 12, turn24 = -1;
-					check6 = false;
-				}
-				if(turn5 <= 20 ){
-			theta[tailId] -= 2;
-			
-			turn5 --;
-			if(turn5 == 0){
-				turn5 = 21;
-				turn6 = 0;
-			}
-		}
-		
-			if(turn6 >= 0){
-				theta[tailId] += 2;
-			
-				turn6 ++;
-				if(turn6 == 20){
-					turn6 = -1;
-					turn5 = 20;
-					check = true;
-				}
-			}
-			
-			if(turn7 <= 20 ){
-				theta[head2Id] -= 1;
-			
-				turn7 --;
-				if(turn7 == 0){
-					turn7 = 21;
-					turn8 = 0;
-				}
-			}		
-			if(turn8 >= 0){
-				theta[head2Id] += 1;
-			
-				turn8 ++;
-				if(turn8 == 20){
-					turn8 = -1;
-					turn7 = 20;
-				}
-			}
-			}
-			if(check){
-				if(theta[torsoId] >= -61){
-					theta[torsoId] -= 2;
-				}
-				else{
-					flag14 = true;
-					if(torsoX2 <= 5){
-						torsoX2 += 0.2;
-					}
-					else{
-						flag14 = false;
-						if(check7){
-							theta[leftUpperLegId] = 5;
-							theta[rightUpperLegId] = 5;
-							theta[leftUpperArmId] = 0;
-							theta[rightUpperArmId] = 0;
-							count10 = 0, turn23 = 12, turn24 = -1;
-							check7 = false;
-						}
-						if(theta[rightUpperArmId] >= -38){
-							theta[rightUpperArmId] -= 2;
-						}
-						else{
-							if(turn11 <= 20){					
-								theta[rightLowerArmId] -= 2;	
-								turn11 --;
-								if(turn11 == 0){
-									turn11 = 21;
-									turn12 = 0;
-								}
-							}
-							if(turn12 >= 0){
-								theta[rightLowerArmId] += 2;
-								turn12 ++;
-								if(turn12 == 20){
-									turn12 = -1;
-									turn11 = 20;
-								}
-							}
-						}
-						if(dogUpperArmta <= 78){
-							dogUpperArmta += 2;
-						}
-						else{
-							if(turn13 <= 15){					
-								theta[leftLowerArmId] -= 2;	
-								turn13 --;
-								if(turn13 == 0){
-									turn13 = 16;
-									turn14 = 0;
-								}
-							}
-							if(turn14 >= 0){
-								theta[leftLowerArmId] += 2;
-								turn14 ++;
-								if(turn14 == 15){
-									turn14 = -1;
-									turn13 = 15;
-								}
-							}
-						}
-					}
-				}
-			}
-			
-		}
-		if(flag9){
-			if(theta[rightUpperLegId] <= 228 && flag8){
-				theta[rightUpperLegId] += 2;
-			}
-			else{
-				flag8 = false;
-				
 
-				if(check2){
-					//theta = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0];
-					dogUpperArmta = 0;
-					check2 = false;
-				}
-				else{
-					if(torsoX2 >= -2){
-						torsoX2 -= 0.2;
-						theta[torsoId] += 5;
-
-					}
-					else{
-						if(theta[torsoId] <= 49){
-							theta[torsoId] += 2;
-						}
-					}
-				}
-				
-			}
-			if(!flag8){
-				if(theta[rightUpperLegId] >= 182){
-					theta[rightUpperLegId] -= 2;
-				}
-			}
-		}
-		if(flag10){
-			if(theta[leftLowerLegId] <= 18){
-				theta[leftLowerLegId] += 2;
-			}
-			if(turn15 <= 10){					
-				theta[leftUpperLegId] -= 2;	
-				turn15 --;
-				if(turn15 == 0){
-					turn15 = 11;
-					turn16 = 0;
-				}
-			}
-			if(turn16 >= 0){
-				theta[leftUpperLegId] += 2;
-				turn16 ++;
-				if(turn16 == 10){
-					turn16 = -1;
-					turn15 = 10;
-				}
-			}
-			if(lowerArmta1 <= -2){
-				lowerArmta1 += 2;
-			}
-			
-			if(theta[leftLowerArmId] >= -78){
-					theta[leftLowerArmId] -= 2;
-			}
-			if(count5 <= 9){
-				theta[leftUpperLegId] += 2;
-				theta[rightUpperLegId] += 2;
-				theta[leftUpperArmId] -= 2;
-				theta[rightUpperArmId] -= 2;
-				tailta += 3;
-				count5++;
-			}
-			else{
-				if(turn17 <= 10){					
-					theta[leftUpperLegId] -= 4;	
-					turn17 --;
-					if(turn17 == 0){
-						turn17 = 11;
-						turn18 = 0;
-					}
-				}
-				if(turn18 >= 0){
-					theta[leftUpperLegId] += 4;
-					turn18 ++;
-					if(turn18 == 10){
-						turn18 = -1;
-						turn17 = 10;
-					}
-				}
-			}
-		}
-		if(flag11){
-			
-			
-			if(torsoX2 <= 4){
-				torsoX2 += 0.2;
-			}
-			else{
-				check3 = false;
-				if(check5){
-					theta[leftUpperLegId] = 5;
-					theta[rightUpperLegId] = 5;
-					theta[leftUpperArmId] = 0;
-					theta[rightUpperArmId] = 0;
-					check5 = false;
-				}
-				if(theta[head2Id] >= -28){
-					theta[head2Id] -= 2;
-				}
-				else{
-					if(theta[leftUpperArmId] >= 120 && check4){
-						theta[leftUpperArmId] -= 12;
-					}
-					else{
-						
-						check4 = false;
-						
-						if(count7 <= 9){
-							theta[leftUpperLegId] += 2;
-							theta[rightUpperLegId] += 2;
-							theta[leftUpperArmId] -= 2;
-							theta[rightUpperArmId] -= 2;
-							
-							count7++;
-						}
-						if(torsoR2 <= 174){
-							torsoR2 += 2;
-						}
-						else{
-							if(torsoR <= 70){
-								torsoR += 2;
-							}
-						}
-			
-					}
-					if(!check4){
-						
-							if(theta[leftUpperLegId] >= 88){
-								theta[leftUpperLegId] -= 2;
-							}
-							if(theta[rightUpperLegId] >= 78){
-								theta[rightUpperLegId] -= 2;
-							}
-							if(theta[rightLowerLegId] <= 68){
-								theta[rightLowerLegId] += 2;
-							}
-							if(theta[leftLowerLegId] <= 68){
-								theta[leftLowerLegId] += 2;
-							}
-							if(torsoY >= -2){
-								torsoY -= 1;
-							}
-							if(torsota >= -9){
-								torsota -= 1;
-							}
-							if(theta[leftUpperArmId] <= 148){
-								theta[leftUpperArmId] += 2;
-							}
-							if(theta[leftLowerArmId] <= -2){
-								theta[leftLowerArmId] += 2;
-							}
-							if(lowerArmta2 >= 64){
-								lowerArmta2 -= 2;
-							}
-							if(lowerArmta1 >= -22){
-								lowerArmta1 -= 2;
-							}
-							else{
-								if(turn19 <= 10){					
-									lowerArmta2 -= 1;	
-									turn19 --;
-									if(turn19 == 0){
-										turn19 = 11;
-										turn20 = 0;
-									}
-								}
-								if(turn20 >= 0){
-									lowerArmta2 += 2;
-									turn20 ++;
-									if(turn20 == 10){
-										turn20 = -1;
-										turn19 = 10;
-									}
-								}
-							}
-						
-					}
-				}
-			}
-			if(count6 % 2 == 0 && check3){
-					theta[leftUpperArmId] = -10;
-					theta[rightUpperArmId] = -10;
-					theta[leftUpperLegId] = -10;
-					theta[rightUpperLegId] = -10;
-				}
-			else if(count6 % 2 != 0 && check3){
-					theta[leftUpperArmId] = 10;
-					theta[rightUpperArmId] = 10;
-					theta[leftUpperLegId] = 10;
-					theta[rightUpperLegId] = 10;
-			}
-			count6++;
-		}
-		if(flag12){
-			if(!flag13){
-				theta[leftUpperLegId] = -200;
-				theta[rightUpperLegId] = -200;
-				theta[rightLowerLegId] = 30;
-				theta[leftLowerLegId] = 30;
-				flag13 = true;
-			}
-			if(count9 <= 5){
-				
-					theta[rightUpperLegId] += 5;	
-					theta[leftUpperLegId] -= 5;	
-					count9++;
-				
-			}
-			else{
-				if(turn21 <= 12){
-					theta[rightUpperLegId] -= 5;	
-					theta[leftUpperLegId] += 5;	
-					turn21 --;
-					if(turn21 == 0){
-						turn21 = 13;
-						turn22 = 0;
-					}
-				}
-				if(turn22 >= 0){
-					theta[leftUpperLegId] -= 5;
-					theta[rightUpperLegId] += 5;
-			
-					turn22 ++;
-					if(turn22 == 12){
-						turn22 = -1;
-						turn21 = 12;
-					}
-				}
-			}
-		}
-		if(flag14){
-			if(count10 <= 5){
-				
-					theta[rightUpperLegId] += 5;	
-					theta[leftUpperLegId] -= 5;	
-					theta[leftUpperArmId] += 5;
-					theta[rightUpperArmId] -= 5;
-					count10++;
-			}
-			else{
-				if(turn23 <= 12){
-					theta[rightUpperLegId] -= 5;	
-					theta[leftUpperLegId] += 5;	
-					theta[leftUpperArmId] += 5;
-					theta[rightUpperArmId] -= 5;	
-					turn23 --;
-					if(turn23 == 0){
-						turn23 = 13;
-						turn24 = 0;
-					}
-				}
-				if(turn24 >= 0){
-					theta[rightUpperLegId] += 5;	
-					theta[leftUpperLegId] -= 5;	
-					theta[leftUpperArmId] -= 5;
-					theta[rightUpperArmId] += 5;
-			
-					turn24 ++;
-					if(turn24 == 12){
-						turn24 = -1;
-						turn23 = 12;
-					}
-				}
-			}
-		}
 		//for(i=0; i<numNodes; i++) initNodes(i);
 		for(i=0; i<numNodes; i++) initNodes(i);
 		//traverse(torsoId);
