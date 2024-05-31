@@ -47,47 +47,34 @@ var tailId = 11;
 var leftEarId = 12;
 var rightEarId = 13;
 
-var torsoHeight = 5.0;
-var torsoWidth  = 2.0;
-var upperArmHeight = 2.5;
-var lowerArmHeight = 2.5;
+var torsoHeight = 2.8;
+var torsoWidth = 3.5;
+var upperArmHeight = 1.0;
+var lowerArmHeight = 1.0;
 var upperArmWidth  = 0.7;
 var lowerArmWidth  = 0.5;
 var upperLegWidth  = 0.7;
 var lowerLegWidth  = 0.5;
-var lowerLegHeight = 2.0;
-var upperLegHeight = 3.0;
-var headHeight = 1.5;
-var headWidth  = 1.0;
-
-var torsoHeight2 = 2.8;
-var torsoWidth2 = 3.5;
-var upperArmHeight2 = 1.0;
-var lowerArmHeight2 = 1.0;
-var upperArmWidth2  = 0.7;
-var lowerArmWidth2  = 0.5;
-var upperLegWidth2  = 0.7;
-var lowerLegWidth2  = 0.5;
-var lowerLegHeight2 = 1.0;
-var upperLegHeight2 = 0.7;
-var headHeight2 = 1.3;
-var headWidth2 = 1.3;
-var tailHeight2 = 2.0;
-var tailWidth2 = 0.5;
+var lowerLegHeight = 1.0;
+var upperLegHeight = 0.7;
+var headHeight = 1.3;
+var headWidth = 1.3;
+var tailHeight = 2.0;
+var tailWidth = 0.5;
 var earHeight = 0.6;
 var earWidth = 0.5;
 
 var numNodes = 10;
 var numAngles = 11;
-var numNodes2 = 14;
+var numNodes = 14;
 
 //var theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-var theta2 = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0, 0, 0];
+var theta = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0, 0, 0];
 
 //var stack = [];
-var stack2 = [];
+var stack = [];
 //var figure = [];
-var figure2 = [];
+var figure = [];
 
 var torsoX = 0, torsoY = 0, torsoZ = 0, torsoX2 = 0, torsoY2 = 0, torsoZ2 = 0, torsota = 0, torsoR2 = 0;
 var flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false;
@@ -100,13 +87,16 @@ var turn1 = 3, turn2 = -1, turn3 = 30, turn4 = -1, turn5 = 20, turn6 = -1, turn7
 var turn11 = 20, turn12 = -1, turn13 = 15, turn14 = -1, turn15 = 10, turn16 = -1, turn17 = 10, turn18 = -1, turn19 = 10, turn20 = -1, turn21 = 12;
 
 //for( var i=0; i<numNodes; i++) figure[i] = createNode(null, null, null, null);
-for( var i=0; i<numNodes2; i++) figure2[i] = createNode(null, null, null, null);
+for( var i=0; i<numNodes; i++) figure[i] = createNode(null, null, null, null);
 
 var vBuffer, nBuffer;
 
 var pointsArray = [];
 var colorsArray = [];
 var normalsArray = [];
+
+var isCapturing = false;
+var capturedMotion = [];
 
 //-------------------------------------------
 function scale4(a, b, c) {
@@ -129,7 +119,7 @@ function createNode(transform, render, sibling, child){
 }
 
 
-function initNodes2(Id) {
+function initNodes(Id) {
 
     var m2 = mat4();
 
@@ -137,11 +127,11 @@ function initNodes2(Id) {
 
     case torsoId:
 
-	m2 = rotate(theta2[torsoId], 0, 1, 0 );
+	m2 = rotate(theta[torsoId], 0, 1, 0 );
 	m2 = mult(m2, rotate(torsoR, 1, 0, 0));
 	m2 = mult(m2, rotate(torsoR2, 0, 0, 1));
 	m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
-	figure2[torsoId] = createNode( m2, torso2, null, headId );
+	figure[torsoId] = createNode( m2, torso2, null, headId );
     break;
 
     case headId:
@@ -149,89 +139,89 @@ function initNodes2(Id) {
     case head2Id:
 
 
-    m2 = translate(0.5*torsoWidth2, torsoHeight2, 0.0);
-	m2 = mult(m2, rotate(theta2[head1Id], 1, 0, 0))
-	m2 = mult(m2, rotate(theta2[head2Id], 0, 1, 0));
+    m2 = translate(0.5*torsoWidth, torsoHeight, 0.0);
+	m2 = mult(m2, rotate(theta[head1Id], 1, 0, 0))
+	m2 = mult(m2, rotate(theta[head2Id], 0, 1, 0));
 
-    figure2[headId] = createNode( m2, head2, leftUpperArmId, leftEarId);
+    figure[headId] = createNode( m2, head2, leftUpperArmId, leftEarId);
     break;
 
 	case leftEarId:
-	m2 = translate(0, headHeight2, 0.0);
-    figure2[leftEarId] = createNode( m2, leftear, rightEarId, null );
+	m2 = translate(0, headHeight, 0.0);
+    figure[leftEarId] = createNode( m2, leftear, rightEarId, null );
     break;
 
 	case rightEarId:
-	m2 = translate(1.2*headWidth2, headHeight2, 0.0);
-    figure2[rightEarId] = createNode( m2, rightear, null, null );
+	m2 = translate(1.2*headWidth, headHeight, 0.0);
+    figure[rightEarId] = createNode( m2, rightear, null, null );
     break;
 
 
     case leftUpperArmId:
 
-    m2 = translate(0.5*torsoWidth2, 0.0, -0.5*torsoWidth2);
-	m2 = mult(m2, rotate(theta2[leftUpperArmId], 1, 0, 0));
+    m2 = translate(0.5*torsoWidth, 0.0, -0.5*torsoWidth);
+	m2 = mult(m2, rotate(theta[leftUpperArmId], 1, 0, 0));
 	m2 = mult(m2, rotate(dogUpperArmta, 0, 0, 1));
-    figure2[leftUpperArmId] = createNode( m2, leftUpperArm2, rightUpperArmId, leftLowerArmId );
+    figure[leftUpperArmId] = createNode( m2, leftUpperArm2, rightUpperArmId, leftLowerArmId );
     break;
 
     case rightUpperArmId:
 
-    m2 = translate(0.5*torsoWidth2, 0.0, 0.5*torsoWidth2);
-	m2 = mult(m2, rotate(theta2[rightUpperArmId], 1, 0, 0));
-    figure2[rightUpperArmId] = createNode( m2, rightUpperArm2, leftUpperLegId, rightLowerArmId );
+    m2 = translate(0.5*torsoWidth, 0.0, 0.5*torsoWidth);
+	m2 = mult(m2, rotate(theta[rightUpperArmId], 1, 0, 0));
+    figure[rightUpperArmId] = createNode( m2, rightUpperArm2, leftUpperLegId, rightLowerArmId );
     break;
 
    case leftUpperLegId:
 
-    m2 = translate(-0.5*torsoWidth2, 0.0, -0.5*torsoWidth2);
-	m2 = mult(m2 , rotate(theta2[leftUpperLegId], 1, 0, 0));
-    figure2[leftUpperLegId] = createNode( m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId );
+    m2 = translate(-0.5*torsoWidth, 0.0, -0.5*torsoWidth);
+	m2 = mult(m2 , rotate(theta[leftUpperLegId], 1, 0, 0));
+    figure[leftUpperLegId] = createNode( m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId );
     break;
 
     case rightUpperLegId:
 
-    m2 = translate(-0.5*torsoWidth2, 0.0, 0.5*torsoWidth2);
-	m2 = mult(m2, rotate(theta2[rightUpperLegId], 1, 0, 0));
-    figure2[rightUpperLegId] = createNode( m2, rightUpperLeg2, tailId, rightLowerLegId );
+    m2 = translate(-0.5*torsoWidth, 0.0, 0.5*torsoWidth);
+	m2 = mult(m2, rotate(theta[rightUpperLegId], 1, 0, 0));
+    figure[rightUpperLegId] = createNode( m2, rightUpperLeg2, tailId, rightLowerLegId );
     break;
 
     case leftLowerArmId:
 
-    m2 = translate(0.0, -upperArmHeight2, 0.0);
-    m2 = mult(m2, rotate(theta2[leftLowerArmId], 1, 0, 0));
-    figure2[leftLowerArmId] = createNode( m2, leftLowerArm2, null, null );
+    m2 = translate(0.0, -upperArmHeight, 0.0);
+    m2 = mult(m2, rotate(theta[leftLowerArmId], 1, 0, 0));
+    figure[leftLowerArmId] = createNode( m2, leftLowerArm2, null, null );
     break;
 
     case rightLowerArmId:
 
-    m2 = translate(0.0, -upperArmHeight2, 0.0);
-    m2 = mult(m2, rotate(theta2[rightLowerArmId], 1, 0, 0));
-    figure2[rightLowerArmId] = createNode( m2, rightLowerArm2, null, null );
+    m2 = translate(0.0, -upperArmHeight, 0.0);
+    m2 = mult(m2, rotate(theta[rightLowerArmId], 1, 0, 0));
+    figure[rightLowerArmId] = createNode( m2, rightLowerArm2, null, null );
     break;
 
     case leftLowerLegId:
 
-    m2 = translate(0.2, -upperLegHeight2, 0.0);
-    m2 = mult(m2, rotate(theta2[leftLowerLegId], 1, 0, 0));
-    figure2[leftLowerLegId] = createNode( m2, leftLowerLeg2, null, null );
+    m2 = translate(0.2, -upperLegHeight, 0.0);
+    m2 = mult(m2, rotate(theta[leftLowerLegId], 1, 0, 0));
+    figure[leftLowerLegId] = createNode( m2, leftLowerLeg2, null, null );
     break;
 
     case rightLowerLegId:
 
-    m2 = translate(0.0, -upperLegHeight2, 0.0);
-    m2 = mult(m2, rotate(theta2[rightLowerLegId], 1, 0, 0));
-    figure2[rightLowerLegId] = createNode( m2, rightLowerLeg2, null, null );
+    m2 = translate(0.0, -upperLegHeight, 0.0);
+    m2 = mult(m2, rotate(theta[rightLowerLegId], 1, 0, 0));
+    figure[rightLowerLegId] = createNode( m2, rightLowerLeg2, null, null );
     break;
 
 	case tailId:
 
     
 	
-	m2 = translate(-(torsoWidth2/1.75), 0.8*torsoHeight2, 0);
-    m2 = mult(m2, rotate(theta2[tailId], 1, 0, 0));
+	m2 = translate(-(torsoWidth/1.75), 0.8*torsoHeight, 0);
+    m2 = mult(m2, rotate(theta[tailId], 1, 0, 0));
 	m2 = mult(m2, rotate(tailta, 0, 0, 1));
-    figure2[tailId] = createNode( m2, tail, null, null );
+    figure[tailId] = createNode( m2, tail, null, null );
     break;
     }
 
@@ -241,19 +231,19 @@ function initNodes2(Id) {
 function traverse2(Id) {
 
    if(Id == null) return;
-   stack2.push(modelViewMatrix);
-   modelViewMatrix = mult(modelViewMatrix, figure2[Id].transform);
-   figure2[Id].render();
-   if(figure2[Id].child != null) traverse2(figure2[Id].child);
-    modelViewMatrix = stack2.pop();
-   if(figure2[Id].sibling != null) traverse2(figure2[Id].sibling);
+   stack.push(modelViewMatrix);
+   modelViewMatrix = mult(modelViewMatrix, figure[Id].transform);
+   figure[Id].render();
+   if(figure[Id].child != null) traverse2(figure[Id].child);
+    modelViewMatrix = stack.pop();
+   if(figure[Id].sibling != null) traverse2(figure[Id].sibling);
 }
 
 function torso2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5*torsoHeight2, 0.0) );
+    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5*torsoHeight, 0.0) );
 
-    instanceMatrix = mult(instanceMatrix, scale4( torsoWidth2, torsoHeight2, torsoWidth2));
+    instanceMatrix = mult(instanceMatrix, scale4( torsoWidth, torsoHeight, torsoWidth));
 	
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
@@ -261,80 +251,80 @@ function torso2() {
 
 function head2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * headWidth2, 0.5 * headHeight2, 0.0 ));
-	instanceMatrix = mult(instanceMatrix, scale4(headWidth2, headHeight2, headWidth2) );
+    instanceMatrix = mult(modelViewMatrix, translate(0.5 * headWidth, 0.5 * headHeight, 0.0 ));
+	instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function leftUpperArm2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth2, -0.5 * upperArmHeight2, 0.5 * upperArmWidth2) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth2, upperArmHeight2, upperArmWidth2) );
+    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, 0.5 * upperArmWidth) );
+	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function leftLowerArm2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth2, -0.5 * lowerArmHeight2, 0.5 * lowerArmWidth2) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth2, lowerArmHeight2, lowerArmWidth2) );
+    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, 0.5 * lowerArmWidth) );
+	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function rightUpperArm2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth2, -0.5 * upperArmHeight2, -0.5 * upperArmWidth2) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth2, upperArmHeight2, upperArmWidth2) );
+    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, -0.5 * upperArmWidth) );
+	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function rightLowerArm2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth2, -0.5 * lowerArmHeight2, -0.5 * lowerArmWidth2) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth2, lowerArmHeight2, lowerArmWidth2) );
+    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, -0.5 * lowerArmWidth) );
+	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function  leftUpperLeg2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth2, -0.5 * upperLegHeight2, 0.5 * upperLegWidth2) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth2, upperLegHeight2+0.2, upperLegWidth2) );
+    instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, 0.5 * upperLegWidth) );
+	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight+0.2, upperLegWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function leftLowerLeg2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate( 0.5 * lowerLegWidth2, -0.5 * lowerLegHeight2, 0.5 * lowerLegWidth2) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth2, lowerLegHeight2, lowerLegWidth2) );
+    instanceMatrix = mult(modelViewMatrix, translate( 0.5 * lowerLegWidth, -0.5 * lowerLegHeight, 0.5 * lowerLegWidth) );
+	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function rightUpperLeg2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth2, -0.5 * upperLegHeight2, -0.5 * upperLegWidth2) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth2, upperLegHeight2+0.2, upperLegWidth2) );
+    instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, -0.5 * upperLegWidth) );
+	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight+0.2, upperLegWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function rightLowerLeg2() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * lowerLegWidth2, -0.5 * lowerLegHeight2, -0.5 * lowerLegWidth2) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth2, lowerLegHeight2, lowerLegWidth2) )
+    instanceMatrix = mult(modelViewMatrix, translate(0.5 * lowerLegWidth, -0.5 * lowerLegHeight, -0.5 * lowerLegWidth) );
+	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) )
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function tail() {
 
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * tailWidth2, 0.5 * tailHeight2, 0.0) );
-	instanceMatrix = mult(instanceMatrix, scale4(tailWidth2, tailHeight2, tailWidth2) )
+    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * tailWidth, 0.5 * tailHeight, 0.0) );
+	instanceMatrix = mult(instanceMatrix, scale4(tailWidth, tailHeight, tailWidth) )
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
@@ -393,7 +383,7 @@ window.onload = function init() {
     if ( !gl ) { alert( "WebGL isn't available" ); }
 	
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 0.0, 0.5, 0.0, 0.7);
+    gl.clearColor( 0.0, 0.0, 0.0, 0.8);
 
 	gl.enable(gl.DEPTH_TEST);
     //
@@ -441,66 +431,98 @@ window.onload = function init() {
         initNodes(torsoId);
     };
 
-	
-	// Buttons here
-	document.getElementById("Button1").onclick = function(){
-		flag1 = !flag1;
-		flag12 = true;
-	};
-	
-	document.getElementById("Button2").onclick = function(){
-		flag2 = !flag2;
-		flag1 = false, flag12 = true;
-	};
-	
-	document.getElementById("Button3").onclick = function(){
-		flag3 = !flag3;
-		flag2 = false;
-	};
-	
-	document.getElementById("Button4").onclick = function(){
-		flag6 = !flag6;
-		flag3 = false;
-	};
-	document.getElementById("Button5").onclick = function(){
-		flag7 = !flag7;
-		flag6 = false;
-	};
-	document.getElementById("Button6").onclick = function(){
-		flag8 = !flag8;
-		flag7 = false;
-	};
-	document.getElementById("Button7").onclick = function(){
-		flag9 = !flag9;
-		//flag2 = !flag2;
-		//flag1 = !flag1;
-		
-	};
-	document.getElementById("Button8").onclick = function(){
-		flag10 = !flag10;
-		flag9 = false;
-	};
-	document.getElementById("Button9").onclick = function(){
-		flag11 = !flag11;
-		flag10 = false;
-		theta[leftUpperLegId] = 180;
-		
-	};
-	document.getElementById("Button10").onclick = function(){
-		torsoX = 0, torsoY = 0, torsoZ = 0, torsoX2 = 0, torsoY2 = 0, torsoZ2 = 0, torsota = 0, torsoR2 = 0;
-		flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false;
-		flag9 = false, flag10 = false, flag11 = false, flag12 = false, flag13 = false, flag14 = false; 
-		check = false, check2 = true, check3 = true, check4 = true, check5 = true, check6 = true, check7 = true;
-		count1 = 0, count2 = 0, count3 = 0, count4 = 0, count5 = 0, count6 = 0, count7 = 0, count8 = 0, count9 = 0, count10 = 0;
-		armta1 = 0, armta2 = 0, armta3 = 0, torsoR = 0, lowerArmta2 = 0, lowerArmta1 = 0, dogUpperArmta = 0, lowerArmta3 = 0;
-		tailta = 0, turn23 = 12, turn24 = -1;
-		turn1 = 3, turn2 = -1, turn3 = 30, turn4 = -1, turn5 = 20, turn6 = -1, turn7 = 20, turn8 = -1, turn9 = 20, turn10 = -1, turn22 = -1;
-		turn11 = 20, turn12 = -1, turn13 = 15, turn14 = -1, turn15 = 10, turn16 = -1, turn17 = 10, turn18 = -1, turn19 = 10, turn20 = -1, turn21 = 12;
-		theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-		theta2 = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0, 0, 0];
+    
+  document.getElementById("slider0").oninput = function (event) {
+    theta[torsoId] = event.target.value;
+    initNodes(torsoId);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+  document.getElementById("slider1").oninput = function (event) {
+    theta[head1Id] = event.target.value;
+    initNodes(head1Id);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
 
-	};
+  document.getElementById("slider2").oninput = function (event) {
+    theta[leftUpperArmId] = event.target.value;
+    initNodes(leftUpperArmId);
+  };
+  document.getElementById("slider3").oninput = function (event) {
+    theta[leftLowerArmId] = event.target.value;
+    initNodes(leftLowerArmId);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
 
+  document.getElementById("slider4").oninput = function (event) {
+    theta[rightUpperArmId] = event.target.value;
+    initNodes(rightUpperArmId);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+  document.getElementById("slider5").oninput = function (event) {
+    theta[rightLowerArmId] = event.target.value;
+    initNodes(rightLowerArmId);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+  document.getElementById("slider6").oninput = function (event) {
+    theta[leftUpperLegId] = event.target.value;
+    initNodes(leftUpperLegId);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+  document.getElementById("slider7").oninput = function (event) {
+    theta[leftLowerLegId] = event.target.value;
+    initNodes(leftLowerLegId);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+  document.getElementById("slider8").oninput = function (event) {
+    theta[rightUpperLegId] = event.target.value;
+    initNodes(rightUpperLegId);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+  document.getElementById("slider9").oninput = function (event) {
+    theta[rightLowerLegId] = event.target.value;
+    initNodes(rightLowerLegId);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+  document.getElementById("slider10").oninput = function (event) {
+    theta[head2Id] = event.target.value;
+    initNodes(head2Id);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+
+  document.getElementById("motioncapture_start").onclick = function () {
+    isCapturing = true;
+    console.log("Capturing started");
+  };
+  
+  document.getElementById("motioncapture_stop").onclick = function () {
+    isCapturing = false;
+    console.log("Capturing stopped");
+  };
+
+  document.getElementById("motioncapture_print").onclick = function () {
+    console.log(JSON.stringify(capturedMotion));
+  };
+
+  document.getElementById("motioncapture_play").onclick = function () {
+    console.log("Playing captured motion");
+    if (capturedMotion.length > 0) {
+      let index = 0;
+      const interval = setInterval(() => {
+        theta = capturedMotion[index];
+        for (let i = 0; i < numNodes; i++) initNodes(i);
+        index++;
+        if (index >= capturedMotion.length) {
+          clearInterval(interval);
+        }
+      }, 100); // Change the interval time as needed
+    }
+  };
+  
+  document.getElementById("motioncapture_reset").oninput = function (event) {
+    capturedMotion = [];
+    console.log("Resetting captured motion");
+  };
+  
     gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),flatten(specularProduct));
@@ -509,7 +531,7 @@ window.onload = function init() {
     gl.uniform1f(gl.getUniformLocation(program, "shininess"),materialShininess);	
 	
     //for(i=0; i<numNodes; i++) initNodes(i);
-	for(i=0; i<numNodes2; i++) initNodes2(i);
+	for(i=0; i<numNodes; i++) initNodes(i);
 	render();
 }
 
@@ -650,7 +672,7 @@ var render = function() {
 					}
 				}
 			if(turn5 <= 20 && flag5){
-				theta2[tailId] -= 2;
+				theta[tailId] -= 2;
 			
 				turn5 --;
 				if(turn5 == 0){
@@ -660,7 +682,7 @@ var render = function() {
 			}
 		
 			if(turn6 >= 0){
-				theta2[tailId] += 2;
+				theta[tailId] += 2;
 			
 				turn6 ++;
 				if(turn6 == 20){
@@ -669,7 +691,7 @@ var render = function() {
 				}
 			}
 			if(turn7 <= 20 && flag5){
-				theta2[head2Id] += 2;
+				theta[head2Id] += 2;
 			
 				turn7 --;
 				if(turn7 == 0){
@@ -678,7 +700,7 @@ var render = function() {
 				}
 			}		
 			if(turn8 >= 0){
-				theta2[head2Id] -= 2;
+				theta[head2Id] -= 2;
 			
 				turn8 ++;
 				if(turn8 == 20){
@@ -708,7 +730,7 @@ var render = function() {
 		if(flag6){
 			
 			theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-			theta2 = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0, 0, 0];
+			theta = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0, 0, 0];
 			torsoY = 0, torsoZ = 0, torsoY2 = 0, torsoZ2 = 0, torsota = 0;
 			armta1 = 0, armta2 = 0, armta3 = 0, torsoR = 0;
 			turn5 = 20, turn6 = -1, turn7 = 20, turn8 = -1;
@@ -740,15 +762,15 @@ var render = function() {
 			else{
 				flag14 = false;
 				if(check6){
-					theta2[leftUpperLegId] = 5;
-					theta2[rightUpperLegId] = 5;
-					theta2[leftUpperArmId] = 0;
-					theta2[rightUpperArmId] = 0;
+					theta[leftUpperLegId] = 5;
+					theta[rightUpperLegId] = 5;
+					theta[leftUpperArmId] = 0;
+					theta[rightUpperArmId] = 0;
 					count10 = 0, turn23 = 12, turn24 = -1;
 					check6 = false;
 				}
 				if(turn5 <= 20 ){
-			theta2[tailId] -= 2;
+			theta[tailId] -= 2;
 			
 			turn5 --;
 			if(turn5 == 0){
@@ -758,7 +780,7 @@ var render = function() {
 		}
 		
 			if(turn6 >= 0){
-				theta2[tailId] += 2;
+				theta[tailId] += 2;
 			
 				turn6 ++;
 				if(turn6 == 20){
@@ -769,7 +791,7 @@ var render = function() {
 			}
 			
 			if(turn7 <= 20 ){
-				theta2[head2Id] -= 1;
+				theta[head2Id] -= 1;
 			
 				turn7 --;
 				if(turn7 == 0){
@@ -778,7 +800,7 @@ var render = function() {
 				}
 			}		
 			if(turn8 >= 0){
-				theta2[head2Id] += 1;
+				theta[head2Id] += 1;
 			
 				turn8 ++;
 				if(turn8 == 20){
@@ -799,19 +821,19 @@ var render = function() {
 					else{
 						flag14 = false;
 						if(check7){
-							theta2[leftUpperLegId] = 5;
-							theta2[rightUpperLegId] = 5;
-							theta2[leftUpperArmId] = 0;
-							theta2[rightUpperArmId] = 0;
+							theta[leftUpperLegId] = 5;
+							theta[rightUpperLegId] = 5;
+							theta[leftUpperArmId] = 0;
+							theta[rightUpperArmId] = 0;
 							count10 = 0, turn23 = 12, turn24 = -1;
 							check7 = false;
 						}
-						if(theta2[rightUpperArmId] >= -38){
-							theta2[rightUpperArmId] -= 2;
+						if(theta[rightUpperArmId] >= -38){
+							theta[rightUpperArmId] -= 2;
 						}
 						else{
 							if(turn11 <= 20){					
-								theta2[rightLowerArmId] -= 2;	
+								theta[rightLowerArmId] -= 2;	
 								turn11 --;
 								if(turn11 == 0){
 									turn11 = 21;
@@ -819,7 +841,7 @@ var render = function() {
 								}
 							}
 							if(turn12 >= 0){
-								theta2[rightLowerArmId] += 2;
+								theta[rightLowerArmId] += 2;
 								turn12 ++;
 								if(turn12 == 20){
 									turn12 = -1;
@@ -832,7 +854,7 @@ var render = function() {
 						}
 						else{
 							if(turn13 <= 15){					
-								theta2[leftLowerArmId] -= 2;	
+								theta[leftLowerArmId] -= 2;	
 								turn13 --;
 								if(turn13 == 0){
 									turn13 = 16;
@@ -840,7 +862,7 @@ var render = function() {
 								}
 							}
 							if(turn14 >= 0){
-								theta2[leftLowerArmId] += 2;
+								theta[leftLowerArmId] += 2;
 								turn14 ++;
 								if(turn14 == 15){
 									turn14 = -1;
@@ -862,14 +884,14 @@ var render = function() {
 				
 
 				if(check2){
-					//theta2 = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0];
+					//theta = [225, -10, 0, 0, 0, 0, 5, -10, 5, -10, 0, 0];
 					dogUpperArmta = 0;
 					check2 = false;
 				}
 				else{
 					if(torsoX2 >= -2){
 						torsoX2 -= 0.2;
-						theta2[torsoId] += 5;
+						theta[torsoId] += 5;
 
 					}
 					else{
@@ -914,16 +936,16 @@ var render = function() {
 					theta[leftLowerArmId] -= 2;
 			}
 			if(count5 <= 9){
-				theta2[leftUpperLegId] += 2;
-				theta2[rightUpperLegId] += 2;
-				theta2[leftUpperArmId] -= 2;
-				theta2[rightUpperArmId] -= 2;
+				theta[leftUpperLegId] += 2;
+				theta[rightUpperLegId] += 2;
+				theta[leftUpperArmId] -= 2;
+				theta[rightUpperArmId] -= 2;
 				tailta += 3;
 				count5++;
 			}
 			else{
 				if(turn17 <= 10){					
-					theta2[leftUpperLegId] -= 4;	
+					theta[leftUpperLegId] -= 4;	
 					turn17 --;
 					if(turn17 == 0){
 						turn17 = 11;
@@ -931,7 +953,7 @@ var render = function() {
 					}
 				}
 				if(turn18 >= 0){
-					theta2[leftUpperLegId] += 4;
+					theta[leftUpperLegId] += 4;
 					turn18 ++;
 					if(turn18 == 10){
 						turn18 = -1;
@@ -949,14 +971,14 @@ var render = function() {
 			else{
 				check3 = false;
 				if(check5){
-					theta2[leftUpperLegId] = 5;
-					theta2[rightUpperLegId] = 5;
-					theta2[leftUpperArmId] = 0;
-					theta2[rightUpperArmId] = 0;
+					theta[leftUpperLegId] = 5;
+					theta[rightUpperLegId] = 5;
+					theta[leftUpperArmId] = 0;
+					theta[rightUpperArmId] = 0;
 					check5 = false;
 				}
-				if(theta2[head2Id] >= -28){
-					theta2[head2Id] -= 2;
+				if(theta[head2Id] >= -28){
+					theta[head2Id] -= 2;
 				}
 				else{
 					if(theta[leftUpperArmId] >= 120 && check4){
@@ -967,10 +989,10 @@ var render = function() {
 						check4 = false;
 						
 						if(count7 <= 9){
-							theta2[leftUpperLegId] += 2;
-							theta2[rightUpperLegId] += 2;
-							theta2[leftUpperArmId] -= 2;
-							theta2[rightUpperArmId] -= 2;
+							theta[leftUpperLegId] += 2;
+							theta[rightUpperLegId] += 2;
+							theta[leftUpperArmId] -= 2;
+							theta[rightUpperArmId] -= 2;
 							
 							count7++;
 						}
@@ -1039,16 +1061,16 @@ var render = function() {
 				}
 			}
 			if(count6 % 2 == 0 && check3){
-					theta2[leftUpperArmId] = -10;
-					theta2[rightUpperArmId] = -10;
-					theta2[leftUpperLegId] = -10;
-					theta2[rightUpperLegId] = -10;
+					theta[leftUpperArmId] = -10;
+					theta[rightUpperArmId] = -10;
+					theta[leftUpperLegId] = -10;
+					theta[rightUpperLegId] = -10;
 				}
 			else if(count6 % 2 != 0 && check3){
-					theta2[leftUpperArmId] = 10;
-					theta2[rightUpperArmId] = 10;
-					theta2[leftUpperLegId] = 10;
-					theta2[rightUpperLegId] = 10;
+					theta[leftUpperArmId] = 10;
+					theta[rightUpperArmId] = 10;
+					theta[leftUpperLegId] = 10;
+					theta[rightUpperLegId] = 10;
 			}
 			count6++;
 		}
@@ -1092,18 +1114,18 @@ var render = function() {
 		if(flag14){
 			if(count10 <= 5){
 				
-					theta2[rightUpperLegId] += 5;	
-					theta2[leftUpperLegId] -= 5;	
-					theta2[leftUpperArmId] += 5;
-					theta2[rightUpperArmId] -= 5;
+					theta[rightUpperLegId] += 5;	
+					theta[leftUpperLegId] -= 5;	
+					theta[leftUpperArmId] += 5;
+					theta[rightUpperArmId] -= 5;
 					count10++;
 			}
 			else{
 				if(turn23 <= 12){
-					theta2[rightUpperLegId] -= 5;	
-					theta2[leftUpperLegId] += 5;	
-					theta2[leftUpperArmId] += 5;
-					theta2[rightUpperArmId] -= 5;	
+					theta[rightUpperLegId] -= 5;	
+					theta[leftUpperLegId] += 5;	
+					theta[leftUpperArmId] += 5;
+					theta[rightUpperArmId] -= 5;	
 					turn23 --;
 					if(turn23 == 0){
 						turn23 = 13;
@@ -1111,10 +1133,10 @@ var render = function() {
 					}
 				}
 				if(turn24 >= 0){
-					theta2[rightUpperLegId] += 5;	
-					theta2[leftUpperLegId] -= 5;	
-					theta2[leftUpperArmId] -= 5;
-					theta2[rightUpperArmId] += 5;
+					theta[rightUpperLegId] += 5;	
+					theta[leftUpperLegId] -= 5;	
+					theta[leftUpperArmId] -= 5;
+					theta[rightUpperArmId] += 5;
 			
 					turn24 ++;
 					if(turn24 == 12){
@@ -1125,7 +1147,7 @@ var render = function() {
 			}
 		}
 		//for(i=0; i<numNodes; i++) initNodes(i);
-		for(i=0; i<numNodes2; i++) initNodes2(i);
+		for(i=0; i<numNodes; i++) initNodes(i);
 		//traverse(torsoId);
 		modelViewMatrix = translate(3.0, 0, 0.0);
 		traverse2(torsoId);
