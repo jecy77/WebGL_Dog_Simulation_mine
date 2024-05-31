@@ -176,7 +176,6 @@ function initNodes(Id) {
     break;
 
     }
-
 }
 
 function traverse(Id) {
