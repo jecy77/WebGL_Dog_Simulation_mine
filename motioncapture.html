@@ -15,6 +15,7 @@ uniform mat4 modelViewMatrix;         // 모델 뷰 행렬
 uniform mat4 projectionMatrix;        // 투영 행렬
 uniform vec4 lightPosition;           // 조명 위치
 uniform float shininess;              // 광택도
+uniform vec4 uColor; // 색상 정보
 
 void main()
 {
@@ -47,7 +48,7 @@ void main()
     
     gl_Position = projectionMatrix * modelViewMatrix * vPosition;
 
-    fColor = ambient + diffuse + specular; // 최종 색상
+    fColor = uColor * (ambient + diffuse + specular);// 최종 색상
     fColor.a = 1.0;
 }
 </script>
