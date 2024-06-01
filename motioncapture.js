@@ -77,7 +77,7 @@ var numAngles = 11;
 var numNodes2 = 14;
 
 //var theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-var theta = [225, 0, 0, 0, 0, 0, 5, -10, 5, -10, -80, 0, 0, 0];
+var theta = [225, 0, 0, 0, 0, 0, 5, -10, 5, -10, -90, 0, 0, 0];
 
 var stack = [];
 var stack2 = [];
@@ -519,7 +519,7 @@ window.onload = function init() {
 
   instanceMatrix = mat4();
 
-  projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
+  projectionMatrix = ortho(-4.0, 16.0, -10.0, 10.0, -10.0, 10.0);
   //    modelViewMatrix = mat4();
 
   //    gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
@@ -718,12 +718,12 @@ window.onload = function init() {
 
 var render = function () {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  modelViewMatrix = translate(-5.0, -3.0, 3.0);
+  modelViewMatrix = translate(2.0, -5.0, 5.0);
 
   for (i = 0; i < numNodes; i++) initNodes(i);
   for (i = 0; i < numNodes2; i++) initNodes2(i);
   traverse(torsoId);
-  modelViewMatrix = translate(3.0, 0, 0.0);
+  modelViewMatrix = translate(10.0, 0, 0.0);
   traverse2(torsoId);
   requestAnimFrame(render);
 };
