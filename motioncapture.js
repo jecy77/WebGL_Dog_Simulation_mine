@@ -26,10 +26,14 @@ var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 0.0, 1.0 );
 
 // 골든 리트리버 색 https://encycolorpedia.kr/f1af09
-var materialAmbient = vec4(0.9451, 0.6863, 0.0353, 1.0);
+var materialAmbient = vec4(0.5, 0.5, 0.5,  1.0);
 var materialDiffuse = vec4(0.5, 0.5, 0.5, 1.0);
 var materialSpecular = vec4(0.5, 0.5, 0.5, 1.0);
 var materialShininess = 10.0;
+
+var color1 = vec4(0.0, 0.2039, 0.3451, 1.0); // 사료 그릇 색상 
+var color2 = vec4(0.9451, 0.6863, 0.0353, 1.0); // 강아지 색상 
+
 
 var torsoId = 0;
 var headId  = 1;
@@ -272,6 +276,7 @@ function bowl() {
     instanceMatrix = mult(instanceMatrix, scale4( bowlWidth, bowlHeight, bowlWidth));
 	
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color1));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -281,6 +286,7 @@ function torso2() {
     instanceMatrix = mult(instanceMatrix, scale4( torsoWidth, torsoHeight, torsoWidth));
 	
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -289,7 +295,8 @@ function head2() {
     instanceMatrix = mult(modelViewMatrix, translate(0.5 * headWidth, 0.5 * headHeight, 0.0 ));
 	instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, 1.5*headWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+    gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2)); 
+	for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function leftUpperArm2() {
@@ -297,6 +304,7 @@ function leftUpperArm2() {
     instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, 0.5 * upperArmWidth) );
 	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2)); 
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -305,6 +313,7 @@ function leftLowerArm2() {
     instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, 0.5 * lowerArmWidth) );
 	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -313,6 +322,7 @@ function rightUpperArm2() {
     instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, -0.5 * upperArmWidth) );
 	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -321,6 +331,7 @@ function rightLowerArm2() {
     instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, -0.5 * lowerArmWidth) );
 	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -329,6 +340,7 @@ function  leftUpperLeg2() {
     instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, 0.5 * upperLegWidth) );
 	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight+0.2, upperLegWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -337,6 +349,7 @@ function leftLowerLeg2() {
     instanceMatrix = mult(modelViewMatrix, translate( 0.5 * lowerLegWidth, -0.5 * lowerLegHeight, 0.5 * lowerLegWidth) );
 	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -345,6 +358,7 @@ function rightUpperLeg2() {
     instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, -0.5 * upperLegWidth) );
 	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight+0.2, upperLegWidth) );
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -353,6 +367,7 @@ function rightLowerLeg2() {
     instanceMatrix = mult(modelViewMatrix, translate(0.5 * lowerLegWidth, -0.5 * lowerLegHeight, -0.5 * lowerLegWidth) );
 	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) )
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -361,6 +376,7 @@ function tail() {
     instanceMatrix = mult(modelViewMatrix, translate(0.5 * tailWidth, 0.8 * tailHeight, 0.0) );
 	instanceMatrix = mult(instanceMatrix, scale4(tailWidth, tailHeight, tailWidth) )
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
@@ -368,6 +384,7 @@ function leftear() {
 	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0) );
 	instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth) )
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 
 }
@@ -376,6 +393,7 @@ function rightear() {
 	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0) );
 	instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth) )
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
     for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 
 }
