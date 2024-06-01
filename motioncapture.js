@@ -519,7 +519,7 @@ window.onload = function init() {
 
   instanceMatrix = mat4();
 
-  projectionMatrix = ortho(-4.0, 16.0, -10.0, 10.0, -10.0, 10.0);
+  projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
   //    modelViewMatrix = mat4();
 
   //    gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
@@ -718,12 +718,12 @@ window.onload = function init() {
 
 var render = function () {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  modelViewMatrix = translate(2.0, -5.0, 5.0);
+  modelViewMatrix = translate(-3.0, -5.0, 5.0);
 
   for (i = 0; i < numNodes; i++) initNodes(i);
   for (i = 0; i < numNodes2; i++) initNodes2(i);
   traverse(torsoId);
-  modelViewMatrix = translate(10.0, 0, 0.0);
+  modelViewMatrix = translate(3.0, 0, 0.0);
   traverse2(torsoId);
   requestAnimFrame(render);
 };
