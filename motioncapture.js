@@ -36,6 +36,7 @@ var color2 = vec4(0.9451, 0.6863, 0.0353, 1.0); // 강아지 색상
 
 
 var torsoId = 0;
+var torsoId2 = 14;
 var headId = 1;
 var head1Id = 1;
 var head2Id = 10;
@@ -77,7 +78,7 @@ var numAngles = 11;
 var numNodes2 = 14;
 
 //var theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-var theta = [225, 0, 0, 0, 0, 0, 5, -10, 5, -10, -90, 0, 0, 0];
+var theta = [225, 0, 0, 0, 0, 0, 5, -10, 5, -10, -90, 0, 0, 0, 0];
 
 var stack = [];
 var stack2 = [];
@@ -207,12 +208,16 @@ function initNodes2(Id) {
   var m2 = mat4();
 
   switch (Id) {
+    
     case torsoId:
+    case torsoId2:
       m2 = rotate(theta[torsoId], 0, 1, 0);
       m2 = mult(m2, rotate(torsoR, 1, 0, 0));
       m2 = mult(m2, rotate(torsoR2, 0, 0, 1));
+      m2 = mult(m2, rotate(theta[torsoId2],1,0,0))
       m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
       figure2[torsoId] = createNode(m2, torso2, null, headId);
+      
       break;
 
     case headId:
@@ -556,6 +561,11 @@ window.onload = function init() {
   document.getElementById("torso").oninput = function (event) {
     theta[torsoId] = event.target.value;
     initNodes2(torsoId);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+  document.getElementById("torso2").oninput = function (event) {
+    theta[torsoId2] = event.target.value;
+    initNodes2(torsoId2);
     if (isCapturing) capturedMotion.push([...theta]);
   };
   document.getElementById("head1").oninput = function (event) {
