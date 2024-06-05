@@ -1,5 +1,9 @@
 <html>
 
+<head>
+    <link rel="stylesheet" type="text/css" href="motioncapture.css">
+</head>
+
 <script id="vertex-shader" type="x-shader/x-vertex">
 
 attribute  vec4 vPosition;            // 정점 위치
@@ -11,6 +15,7 @@ uniform mat4 modelViewMatrix;         // 모델 뷰 행렬
 uniform mat4 projectionMatrix;        // 투영 행렬
 uniform vec4 lightPosition;           // 조명 위치
 uniform float shininess;              // 광택도
+uniform vec4 uColor; // 색상 정보
 
 void main()
 {
@@ -43,7 +48,7 @@ void main()
     
     gl_Position = projectionMatrix * modelViewMatrix * vPosition;
 
-    fColor = ambient + diffuse + specular; // 최종 색상
+    fColor = uColor * (ambient + diffuse + specular);// 최종 색상
     fColor.a = 1.0;
 }
 </script>
@@ -66,129 +71,33 @@ void main()
 <script type="text/javascript" src="./Common/initShaders.js"></script>
 <script type="text/javascript" src="./Common/MV.js"></script>
 <script type="text/javascript" src="./index.js"></script>
+<script type="text/javascript" src="./motioncaptureData.js"></script>
 
-<!-- 동작 버튼들 -->
-<div> 
-    <div>
-        torso angle -180 <input id="slider0" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        <div>
-        head2 angle -180 <input id="slider10" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        
-        <div>
-        head1 angle -180 <input id="slider1" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        
-        <div>
-        left upper arm angle -180 <input id="slider2" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        <div>
-        left lower arm angle -180 <input id="slider3" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        <div>
-        right upper arm angle -180 <input id="slider4" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        <div>
-        right lower arm angle -180 <input id="slider5" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        <div>
-        left upper leg angle -180 <input id="slider6" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        <div>
-        left lower leg angle -180 <input id="slider7" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        <div>
-        right upper leg angle -180 <input id="slider8" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        
-        <div>
-        right lower leg angle -180 <input id="slider9" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/> 
-        <div class="button-group"> 
-            <button id="Button1">Catch</button>
-            <button id="Button2">강아지에게 다가가기</button>
-            <button id="Button3">쓰다듬기</button>
-            <button id="Button7">산책가기</button>
-            <button id="Button9">빵</button>
+<body>
+    <div class="container">
+        <!-- 캔버스 요소 정의 -->
+        <div class="canvas-container">
+            <canvas id="gl-canvas" width="512" height="512">
+                Oops ... your browser doesn't support the HTML5 canvas element
+            </canvas>
+            <ul>
+                <a href="./motioncapture.html">Make your animation self.</a>
+            </ul>
         </div>
-
-        <div class="button-group">
-            <button id="Button6">산책가자고 조르기</button>
-            <button id="Button4">Rest</button>
-            <button id="Button5">Ruminate</button>
-            <button id="Button8">Angry</button>
-            <button id="Button10">Reset</button>
+        <!-- 동작 버튼들 -->
+        <div class="controls-container">
+            <div class="buttons">
+                <button id="reset_all" onclick="location.reload()">reset all</button>
+                <hr />
+                <button id="dontEatMotionData">don't like.</button>
+                <button id="peeMotionData">Pee.</button>
+                <button id="eatMotionData">Eat.</button>
+                <button id="runAwayMotionData">Run away.</button>
+                <button id="walkAwayMotionData">Walk away.</button>
+                <button id="walkEatPeeRunMotionData">walkEatPeeRun</button>
+            </div>
         </div>
-
-        <div class="slider-group">
-            torso angle -180 <input id="slider0" type="range" min="-180" max="180" step="10" value="30"/> 180
-        </div>
-
-    <!-- 캔버스 요소 정의 -->
-    <canvas id="gl-canvas" width="512" height="512">
-    Oops ... your browser doesn't support the HTML5 canvas element
-    </canvas>
+    </div>
 </body>
+
 </html>
-
-
-
-<!-- 
-    Actions
-    <button id = "Button1">Catch</button>
-    <button id = "Button2">Catch again</button>
-    <button id = "Button3">Chummy</button>
-    <button id = "Button6">Ignore</button>
-    <button id = "Button7">Bored</button>
-    <button id = "Button9">Fight</button>
-    </div>
-    
-    프로세스 버튼들
-    <div>
-    Process
-    <button id = "Button4">Rest</button>
-    <button id = "Button5">Ruminate</button>
-    <button id = "Button8">Angry</button>
-    <button id = "Button10">Reset</button>
-    </div>
-    
-    각도 조절 슬라이더
-    <div>
-    torso angle -180 <input id="slider0" type="range" min="-180" max="180" step="10" value="30" /> 180
-    </div>
-
--->

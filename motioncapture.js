@@ -20,7 +20,7 @@ var torsoRotated = false; // 몸이 회전했는지 여부를 나타내는 플�
 var legLifted = false; // 다리가 들어올려졌는지 여부를 나타내는 플래그
 var legLowered = false; // 다리가 내려갔는지 여부를 나타내는 플래그
 
-var walkDirection = 1; // 1이면 앞으로 걷고, -1이면 뒤로 걷기
+var legDirection = 1; // 1이면 앞으로 걷고, -1이면 뒤로 걷기
 var runDirection = 7; // 각도 변화 속도를 빠르게 하기 위해 값 증가
 var headDirection = 2;
 
@@ -52,14 +52,13 @@ var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var lightSpecular = vec4(1.0, 1.0, 0.0, 1.0);
 
 // 골든 리트리버 색 https://encycolorpedia.kr/f1af09
-var materialAmbient = vec4(0.5, 0.5, 0.5,  1.0);
+var materialAmbient = vec4(0.5, 0.5, 0.5, 1.0);
 var materialDiffuse = vec4(0.5, 0.5, 0.5, 1.0);
 var materialSpecular = vec4(0.5, 0.5, 0.5, 1.0);
 var materialShininess = 10.0;
 
-var color1 = vec4(0.9608, 0.9608, 0.8627, 1.0); // 사료 그릇 색상 
-var color2 = vec4(0.9451, 0.6863, 0.0353, 1.0); // 강아지 색상 
-
+var color1 = vec4(0.9608, 0.9608, 0.8627, 1.0); // 사료 그릇 색상
+var color2 = vec4(0.9451, 0.6863, 0.0353, 1.0); // 강아지 색상
 
 var torsoId = 0;
 var torsoId2 = 14;
@@ -235,16 +234,15 @@ function initNodes2(Id) {
   var m2 = mat4();
 
   switch (Id) {
-    
     case torsoId:
     case torsoId2:
       m2 = rotate(theta[torsoId], 0, 1, 0);
       m2 = mult(m2, rotate(torsoR, 1, 0, 0));
       m2 = mult(m2, rotate(torsoR2, 0, 0, 1));
-      m2 = mult(m2, rotate(theta[torsoId2],1,0,0))
+      m2 = mult(m2, rotate(theta[torsoId2], 1, 0, 0));
       m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
       figure2[torsoId] = createNode(m2, torso2, null, headId);
-      
+
       break;
 
     case headId:
@@ -267,27 +265,27 @@ function initNodes2(Id) {
       figure2[rightEarId] = createNode(m2, rightear, null, null);
       break;
 
-      case leftUpperArmId:
-        m2 = translate(0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-        m2 = mult(m2, rotate(theta[leftUpperArmId], 0, 0, 1)); // Rotate around Z-axis
-        figure2[leftUpperArmId] = createNode(
-            m2,
-            leftUpperArm2,
-            rightUpperArmId,
-            leftLowerArmId
-        );
-        break;
+    case leftUpperArmId:
+      m2 = translate(0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[leftUpperArmId], 0, 0, 1)); // Rotate around Z-axis
+      figure2[leftUpperArmId] = createNode(
+        m2,
+        leftUpperArm2,
+        rightUpperArmId,
+        leftLowerArmId
+      );
+      break;
 
     case rightUpperArmId:
-        m2 = translate(0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
-        m2 = mult(m2, rotate(theta[rightUpperArmId], 0, 0, 1)); // Rotate around Z-axis
-        figure2[rightUpperArmId] = createNode(
-            m2,
-            rightUpperArm2,
-            leftUpperLegId,
-            rightLowerArmId
-        );
-        break;
+      m2 = translate(0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[rightUpperArmId], 0, 0, 1)); // Rotate around Z-axis
+      figure2[rightUpperArmId] = createNode(
+        m2,
+        rightUpperArm2,
+        leftUpperLegId,
+        rightLowerArmId
+      );
+      break;
 
         case leftUpperLegId:
           m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
@@ -302,15 +300,15 @@ function initNodes2(Id) {
           break;
 
     case rightUpperLegId:
-        m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
-        m2 = mult(m2, rotate(theta[rightUpperLegId], 0, 0, 1)); // Rotate around Z-axis
-        figure2[rightUpperLegId] = createNode(
-            m2,
-            rightUpperLeg2,
-            tailId,
-            rightLowerLegId
-        );
-        break;
+      m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[rightUpperLegId], 0, 0, 1)); // Rotate around Z-axis
+      figure2[rightUpperLegId] = createNode(
+        m2,
+        rightUpperLeg2,
+        tailId,
+        rightLowerLegId
+      );
+      break;
 
     case leftLowerArmId:
       m2 = translate(0.0, -upperArmHeight, 0.0);
@@ -366,14 +364,17 @@ function traverse2(Id) {
 }
 
 function bowl() {
-	instanceMatrix = mult(modelViewMatrix, translate(-2.0, 0.0, 2.0) );
-	instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1,0));
-	instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0,1));
-    instanceMatrix = mult(instanceMatrix, scale4( bowlWidth, bowlHeight, bowlWidth));
-	
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color1));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(modelViewMatrix, translate(-2.0, 0.0, 2.0));
+  instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
+  instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0, 1));
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(bowlWidth, bowlHeight, bowlWidth)
+  );
+
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color1));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function torso2() {
@@ -386,120 +387,174 @@ function torso2() {
     scale4(torsoWidth, torsoHeight, torsoWidth)
   );
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5*torsoHeight, 0.0) );
-    instanceMatrix = mult(instanceMatrix, scale4( torsoWidth, torsoHeight, torsoWidth));
-	
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * torsoHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(torsoWidth, torsoHeight, torsoWidth)
+  );
+
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function head2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * headWidth, 0.5 * headHeight, 0.0 ));
-	instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, 1.5*headWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2)); 
-	for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * headWidth, 0.5 * headHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(headWidth, headHeight, 1.5 * headWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftUpperArm2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, 0.5 * upperArmWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2)); 
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, 0.5 * upperArmWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperArmWidth, upperArmHeight, upperArmWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerArm2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, 0.5 * lowerArmWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, 0.5 * lowerArmWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperArm2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, -0.5 * upperArmWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, -0.5 * upperArmWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperArmWidth, upperArmHeight, upperArmWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerArm2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, -0.5 * lowerArmWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, -0.5 * lowerArmWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
-function  leftUpperLeg2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, 0.5 * upperLegWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight+0.2, upperLegWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+function leftUpperLeg2() {
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, 0.5 * upperLegWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperLegWidth, upperLegHeight + 0.2, upperLegWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerLeg2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate( 0.5 * lowerLegWidth, -0.5 * lowerLegHeight, 0.5 * lowerLegWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * lowerLegWidth, -0.5 * lowerLegHeight, 0.5 * lowerLegWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperLeg2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, -0.5 * upperLegWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight+0.2, upperLegWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, -0.5 * upperLegWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperLegWidth, upperLegHeight + 0.2, upperLegWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerLeg2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * lowerLegWidth, -0.5 * lowerLegHeight, -0.5 * lowerLegWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * lowerLegWidth, -0.5 * lowerLegHeight, -0.5 * lowerLegWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function tail() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * tailWidth, 0.8 * tailHeight, 0.0) );
-	instanceMatrix = mult(instanceMatrix, scale4(tailWidth, tailHeight, tailWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * tailWidth, 0.8 * tailHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(tailWidth, tailHeight, tailWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftear() {
-	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0) );
-	instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
-
+  instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0));
+  instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightear() {
-	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0) );
-	instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
-
+  instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0));
+  instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function quad(a, b, c, d) {
@@ -588,43 +643,68 @@ window.onload = function init() {
   document.getElementById("torso").oninput = function (event) {
     theta[torsoId] = event.target.value;
     initNodes2(torsoId);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
   document.getElementById("torso2").oninput = function (event) {
     theta[torsoId2] = event.target.value;
     initNodes2(torsoId2);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
   document.getElementById("head1").oninput = function (event) {
     theta[head1Id] = event.target.value;
     initNodes2(head1Id);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
 
   document.getElementById("left_upper_arm").oninput = function (event) {
     theta[leftUpperArmId] = event.target.value;
     initNodes2(leftUpperArmId);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
   document.getElementById("left_lower_arm").oninput = function (event) {
     theta[leftLowerArmId] = event.target.value;
     initNodes2(leftLowerArmId);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
 
   document.getElementById("right_upper_arm").oninput = function (event) {
     theta[rightUpperArmId] = event.target.value;
     initNodes2(rightUpperArmId);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
   document.getElementById("right_lower_arm").oninput = function (event) {
     theta[rightLowerArmId] = event.target.value;
     initNodes2(rightLowerArmId);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
   document.getElementById("left_upper_leg").oninput = function (event) {
     theta[leftUpperLegId] = event.target.value;
     initNodes2(leftUpperLegId);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
   document.getElementById("left_upper_leg2").oninput = function (event) {
     theta[leftUpperLegId2] = event.target.value;
@@ -635,58 +715,76 @@ window.onload = function init() {
   document.getElementById("left_lower_leg").oninput = function (event) {
     theta[leftLowerLegId] = event.target.value;
     initNodes2(leftLowerLegId);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
   document.getElementById("right_upper_leg").oninput = function (event) {
     theta[rightUpperLegId] = event.target.value;
     initNodes2(rightUpperLegId);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
   document.getElementById("right_lower_leg").oninput = function (event) {
     theta[rightLowerLegId] = event.target.value;
     initNodes2(rightLowerLegId);
-    if (isCapturing) capturedMotion.push([...theta]);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   };
+
+
   document.getElementById("head2").oninput = function (event) {
     theta[head2Id] = event.target.value;
     initNodes2(head2Id);
-    if (isCapturing) capturedMotion.push([...theta]);
-  };
-  
-
-
-  document.getElementById("walk").oninput = function (event) {
-    theta[rightUpperArmId] = event.target.value;
-    theta[rightLowerArmId] = -0.5*event.target.value;
-    theta[leftUpperArmId] = -event.target.value;
-    theta[leftLowerArmId] = 0.5*event.target.value;
-    theta[leftUpperLegId] = event.target.value;
-    theta[leftLowerLegId] = -0.5*event.target.value;
-    theta[rightUpperLegId] = -event.target.value;
-    theta[rightLowerLegId] = -0.5*event.target.value;
-    torsoX2 += 0.1;
-    m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
-    initNodes2(head2Id);
     if (isCapturing) {
       capturedMotion.push([...theta]);
       capturedMove.push([torsoX2, torsoY2, torsoZ2]);
     }
   };
 
-  document.getElementById("run").oninput = function (event) {
-    theta[rightUpperArmId] = event.target.value;
-    theta[leftUpperArmId] = event.target.value;
-    theta[leftUpperLegId] = -event.target.value;
-    theta[rightUpperLegId] = -event.target.value;
-    torsoX2 += 0.3;
-    m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
-    initNodes2(head2Id);
+  // document.getElementById("walk").oninput = function (event) {
+  //   theta[rightUpperArmId] = event.target.value;
+  //   theta[rightLowerArmId] = -0.5 * event.target.value;
+  //   theta[leftUpperArmId] = -event.target.value;
+  //   theta[leftLowerArmId] = 0.5 * event.target.value;
+  //   theta[leftUpperLegId] = event.target.value;
+  //   theta[leftLowerLegId] = -0.5 * event.target.value;
+  //   theta[rightUpperLegId] = -event.target.value;
+  //   theta[rightLowerLegId] = -0.5 * event.target.value;
+  //   torsoX2 += 0.1;
+  //   m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
+  //   initNodes2(head2Id);
+  //   if (isCapturing) {
+  //     capturedMotion.push([...theta]);
+  //     capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+  //   }
+  // };
+
+  // document.getElementById("run").oninput = function (event) {
+  //   theta[rightUpperArmId] = event.target.value;
+  //   theta[leftUpperArmId] = event.target.value;
+  //   theta[leftUpperLegId] = -event.target.value;
+  //   theta[rightUpperLegId] = -event.target.value;
+  //   torsoX2 += 0.15;
+  //   m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
+  //   initNodes2(head2Id);
+  //   if (isCapturing) {
+  //     capturedMotion.push([...theta]);
+  //     capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+  //   }
+  // };
+
+  document.getElementById("delayDummy").oninput = function (event) {
     if (isCapturing) {
       capturedMotion.push([...theta]);
       capturedMove.push([torsoX2, torsoY2, torsoZ2]);
     }
   };
-
   
 
   document.getElementById("motioncapture_start").onclick = function () {
@@ -700,7 +798,7 @@ window.onload = function init() {
   };
 
   document.getElementById("motioncapture_print").onclick = function () {
-    console.log([JSON.stringify(capturedMotion), JSON.stringify(capturedMove)]);
+    console.log([capturedMotion, capturedMove]);
   };
 
   //   document.getElementById("motioncapture_reset").oninput = function (event) {
@@ -709,151 +807,150 @@ window.onload = function init() {
   //     console.log("Resetting captured motion");
   //   };
 
-  document.getElementById("motioncapture_play").onclick = function() {
+  document.getElementById("motioncapture_play").onclick = function () {
     console.log("Playing captured motion");
-	isCapturing = false;
-	
+    isCapturing = false;
+
     let index = 0;
     const interval = setInterval(() => {
-        if (index < capturedMove.length) {
-            // 현재 인덱스에 해당하는 위치 데이터를 가져와 모델 뷰 행렬을 업데이트
-            torsoX2 = capturedMove[index][0];
-            torsoY2 = capturedMove[index][1];
-            torsoZ2 = capturedMove[index][2];
+      if (index < capturedMove.length) {
+        // 현재 인덱스에 해당하는 위치 데이터를 가져와 모델 뷰 행렬을 업데이트
+        torsoX2 = capturedMove[index][0];
+        torsoY2 = capturedMove[index][1];
+        torsoZ2 = capturedMove[index][2];
 
-			theta = capturedMotion[index];
+        theta = capturedMotion[index];
 
-            // 모델 뷰 행렬 업데이트 함수 실행
-            m2 = mat4();
-            m2 = translate(torsoX2, torsoY2, torsoZ2);
-            m2 = mult(m2, rotate(theta[torsoId], 0, 1, 0)); // 회전을 적용하고 싶다면 여기에 추가
-            modelViewMatrix = m2;
+        // 모델 뷰 행렬 업데이트 함수 실행
+        m2 = mat4();
+        m2 = translate(torsoX2, torsoY2, torsoZ2);
+        m2 = mult(m2, rotate(theta[torsoId], 0, 1, 0)); // 회전을 적용하고 싶다면 여기에 추가
+        modelViewMatrix = m2;
 
-            // 모든 노드를 초기화하여 새로운 위치를 반영
-            for (let i = 0; i < numNodes; i++) {
-                initNodes(i);
-            }
-
-            index++;
-        } else {
-            // 배열의 끝에 도달하면 인터벌 중지
-            clearInterval(interval);
+        // 모든 노드를 초기화하여 새로운 위치를 반영
+        for (let i = 0; i < numNodes; i++) {
+          initNodes(i);
         }
-    }, 30); // 간격은 밀리초 단위로 설정, 조정 가능
-};
 
-document.getElementById("walkButton").onclick = function() {
-  isWalking = true;
-  isRunning = false;
-  isEating = false;
-  isPeeing = false;
-  walkDirection = 1; // 애니메이션 시작 시 방향 초기화
-  accumulatedAngle = 0; // 초기화
-  theta[head1Id] = 0; 
-  walkMotion();
-};
+        index++;
+      } else {
+        // 배열의 끝에 도달하면 인터벌 중지
+        clearInterval(interval);
+      }
+    }, 10); // 간격은 밀리초 단위로 설정, 조정 가능
+  };
 
+  document.getElementById("walkButton").onclick = function () {
+    isWalking = true;
+    isRunning = false;
+    isEating = false;
+    isPeeing = false;
+    legDirection = 1; // 애니메이션 시작 시 방향 초기화
+    accumulatedAngle = 0; // 초기화
+    theta[head1Id] = 0;
+    walkMotion();
+  };
 
-document.getElementById("runButton").onclick = function() {
-  isWalking = false;
-  isRunning = true;
-  isEating = false;
-  isPeeing = false;
-  runDirection = 7; // 애니메이션 시작 시 방향 초기화
-  accumulatedAngle = 0; // 초기화
-  theta[head1Id] = 0; 
-  runMotion();
-};
+  document.getElementById("runButton").onclick = function () {
+    isWalking = false;
+    isRunning = true;
+    isEating = false;
+    isPeeing = false;
+    runDirection = 7; // 애니메이션 시작 시 방향 초기화
+    accumulatedAngle = 0; // 초기화
+    theta[head1Id] = 0;
+    runMotion();
+  };
 
-document.getElementById("eatButton").onclick = function() {
-  isRunning = false;
-  isWalking = false;
-  isEating = true;
-  isPeeing = false;
-  accumulatedAngle = 0; // 애니메이션 시작 시 초기화
-  headDirection = 2; 
-  EatMotion();
-};
+  document.getElementById("eatButton").onclick = function () {
+    isRunning = false;
+    isWalking = false;
+    isEating = true;
+    isPeeing = false;
+    accumulatedAngle = 0; // 애니메이션 시작 시 초기화
+    headDirection = 2;
+    EatMotion();
+  };
 
-document.getElementById("peeButton").onclick = function() {
-  isRunning = false;
-  isWalking = false;
-  isEating = false;
-  isPeeing = true;
-  torsoAngle = 0; // 초기화
-  legLiftAngle = 0; // 초기화
-  torsoRotated = false; // 초기화
-  legLifted = false; // 초기화
-  legLowered = false; // 초기화
-  PeeMotion(); // 함수 호출
-};
+  document.getElementById("peeButton").onclick = function () {
+    isRunning = false;
+    isWalking = false;
+    isEating = false;
+    isPeeing = true;
+    torsoAngle = 0; // 초기화
+    legLiftAngle = 0; // 초기화
+    torsoRotated = false; // 초기화
+    legLifted = false; // 초기화
+    legLowered = false; // 초기화
+    PeeMotion(); // 함수 호출
+  };
 
-document.getElementById("lieDownButton").onclick = function() {
-  isLyingDown = true;
-  isRunning = false;
-  isWalking = false;
-  isEating = false;
-  isPeeing = false;
-  accumulatedAngle = 0; // 초기화
-  theta[head1Id] = 0;
-  lieDownMotion();
-};
+  document.getElementById("lieDownButton").onclick = function () {
+    isLyingDown = true;
+    isRunning = false;
+    isWalking = false;
+    isEating = false;
+    isPeeing = false;
+    accumulatedAngle = 0; // 초기화
+    theta[head1Id] = 0;
+    lieDownMotion();
+  };
 
-document.getElementById("stopButton").onclick = function() {
-  isRunning = false;
-  isWalking = false;
-  isEating = false;
-  isPeeing = false; // 모든 애니메이션 플래그를 초기화
+  document.getElementById("stopButton").onclick = function () {
+    isRunning = false;
+    isWalking = false;
+    isEating = false;
+    isPeeing = false; // 모든 애니메이션 플래그를 초기화
 
-  // 다리 각도 초기화
-  theta[head1Id] = 0;
-  theta[rightUpperArmId] = 0;
-  theta[rightUpperLegId] = 0;
-  theta[leftUpperArmId] = 0;
-  theta[leftUpperLegId] = 0;
-  theta[rightLowerArmId] = 0;
-  theta[rightLowerLegId] = 0;
-  theta[leftLowerArmId] = 0;
-  theta[leftLowerLegId] = 0;
-  for (var i = 0; i < numNodes2; i++) initNodes2(i);
-};
+    // 다리 각도 초기화
+    theta[head1Id] = 0;
+    theta[rightUpperArmId] = 0;
+    theta[rightUpperLegId] = 0;
+    theta[leftUpperArmId] = 0;
+    theta[leftUpperLegId] = 0;
+    theta[rightLowerArmId] = 0;
+    theta[rightLowerLegId] = 0;
+    theta[leftLowerArmId] = 0;
+    theta[leftLowerLegId] = 0;
+    for (var i = 0; i < numNodes2; i++) initNodes2(i);
+  };
 
-function walkMotion() {
-  if (isWalking) {
+  function walkMotion() {
+    if (isWalking) {
       // 누적 각도 업데이트
-      accumulatedAngle += walkDirection;
+      accumulatedAngle += legDirection;
       if (accumulatedAngle >= 45) {
-          walkDirection = -1;
-          accumulatedAngle = 45; // 45도에서 방향 전환
+        legDirection = -1;
+        accumulatedAngle = 45; // 45도에서 방향 전환
       } else if (accumulatedAngle <= 0) {
-          walkDirection = 1;
-          accumulatedAngle = 0; // 0도에서 방향 전환
-          legPhase = (legPhase + 1) % 2; // 다리 단계를 변경
+        legDirection = 1;
+        accumulatedAngle = 0; // 0도에서 방향 전환
+        legPhase = (legPhase + 1) % 2; // 다리 단계를 변경
       }
 
       // 다리 단계에 따라 각도를 누적 각도로 설정
       if (legPhase === 0) {
-          theta[rightUpperArmId] = accumulatedAngle;
-          theta[rightLowerArmId] = -(accumulatedAngle / 2);
-          theta[rightUpperLegId] = -(accumulatedAngle / 2);
-          theta[rightLowerLegId] = -(accumulatedAngle / 4);
+        theta[rightUpperArmId] = accumulatedAngle;
+        theta[rightLowerArmId] = -(accumulatedAngle / 2);
+        theta[rightUpperLegId] = -(accumulatedAngle / 2);
+        theta[rightLowerLegId] = -(accumulatedAngle / 4);
 
-          theta[leftUpperArmId] = -(accumulatedAngle / 2);
-          theta[leftLowerArmId] = (accumulatedAngle / 4);
-          theta[leftUpperLegId] = (accumulatedAngle / 2);
-          theta[leftLowerLegId] = -(accumulatedAngle / 4);
-          torsoX2 += 0.02;
+        theta[leftUpperArmId] = -(accumulatedAngle / 2);
+        theta[leftLowerArmId] = accumulatedAngle / 4;
+        theta[leftUpperLegId] = accumulatedAngle / 2;
+        theta[leftLowerLegId] = -(accumulatedAngle / 4);
+        torsoX2 += 0.03;
       } else {
-          theta[leftUpperArmId] = accumulatedAngle;
-          theta[leftLowerArmId] = -(accumulatedAngle / 2);
-          theta[leftUpperLegId] = -(accumulatedAngle / 2);
-          theta[leftLowerLegId] = -(accumulatedAngle / 4);
+        theta[leftUpperArmId] = accumulatedAngle;
+        theta[leftLowerArmId] = -(accumulatedAngle / 2);
+        theta[leftUpperLegId] = -(accumulatedAngle / 2);
+        theta[leftLowerLegId] = -(accumulatedAngle / 4);
 
-          theta[rightUpperArmId] = -(accumulatedAngle / 2);
-          theta[rightLowerArmId] = (accumulatedAngle / 4);
-          theta[rightUpperLegId] = (accumulatedAngle / 2);
-          theta[rightLowerLegId] = -(accumulatedAngle / 4);
-          torsoX2 += 0.02;
+        theta[rightUpperArmId] = -(accumulatedAngle / 2);
+        theta[rightLowerArmId] = accumulatedAngle / 4;
+        theta[rightUpperLegId] = accumulatedAngle / 2;
+        theta[rightLowerLegId] = -(accumulatedAngle / 4);
+        torsoX2 += 0.03;
       }
 
       // 몸통의 x 좌표를 업데이트하여 앞으로 나아가도록 함
@@ -862,57 +959,64 @@ function walkMotion() {
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
       requestAnimationFrame(walkMotion);
-  }
-}
-
-
-function runMotion() {
-  if (isRunning) {
-    // 누적 각도 업데이트
-    accumulatedAngle += runDirection;
-    if (accumulatedAngle >= 90) {
-      runDirection = -Math.abs(runDirection);
-      accumulatedAngle = 90; // 90도에서 방향 전환
-    } else if (accumulatedAngle <= 0) {
-      runDirection = Math.abs(runDirection);
-      accumulatedAngle = 0; // 0도에서 방향 전환
-      legPhase = (legPhase + 1) % 2; // 다리 단계를 변경
+      if (isCapturing) {
+        capturedMotion.push([...theta]);
+        capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+      }
     }
-
-    // 다리 단계에 따라 각도를 누적 각도로 설정
-    if (legPhase == 0) {
-      theta[rightUpperArmId] = accumulatedAngle * legDirection;
-      theta[rightUpperLegId] = -(accumulatedAngle / 2) * legDirection;
-
-      theta[leftUpperArmId] = (accumulatedAngle / 2) * legDirection;
-      theta[leftUpperLegId] = -(accumulatedAngle / 2) * legDirection;
-    } else {
-      theta[rightUpperArmId] = -accumulatedAngle * legDirection;
-      theta[rightUpperLegId] = (accumulatedAngle / 2) * legDirection;
-
-      theta[leftUpperArmId] = -accumulatedAngle * legDirection;
-      theta[leftUpperLegId] = (accumulatedAngle / 2) * legDirection;
-    }
-
-    // 몸통의 x 좌표를 업데이트하여 앞으로 나아가도록 함
-    torsoX2 += 0.1;
-
-    for (var i = 0; i < numNodes2; i++) initNodes2(i);
-
-    requestAnimationFrame(runMotion);
   }
-}
 
-function EatMotion() {
-  if (isEating) {
+  function runMotion() {
+    if (isRunning) {
+      // 누적 각도 업데이트
+      accumulatedAngle += runDirection;
+      if (accumulatedAngle >= 45) {
+        runDirection = -Math.abs(runDirection);
+        accumulatedAngle = 45; // 90도에서 방향 전환
+      } else if (accumulatedAngle <= 0) {
+        runDirection = Math.abs(runDirection);
+        accumulatedAngle = 0; // 0도에서 방향 전환
+        legPhase = (legPhase + 1) % 2; // 다리 단계를 변경
+      }
+
+      // 다리 단계에 따라 각도를 누적 각도로 설정
+      if (legPhase == 0) {
+        theta[rightUpperArmId] = accumulatedAngle * legDirection;
+        theta[rightUpperLegId] = -(accumulatedAngle / 2) * legDirection;
+
+        theta[leftUpperArmId] = (accumulatedAngle / 2) * legDirection;
+        theta[leftUpperLegId] = -(accumulatedAngle / 2) * legDirection;
+      } else {
+        theta[rightUpperArmId] = -accumulatedAngle * legDirection;
+        theta[rightUpperLegId] = (accumulatedAngle / 2) * legDirection;
+
+        theta[leftUpperArmId] = -accumulatedAngle * legDirection;
+        theta[leftUpperLegId] = (accumulatedAngle / 2) * legDirection;
+      }
+
+      // 몸통의 x 좌표를 업데이트하여 앞으로 나아가도록 함
+      torsoX2 += 0.1;
+
+      for (var i = 0; i < numNodes2; i++) initNodes2(i);
+
+      requestAnimationFrame(runMotion);
+      if (isCapturing) {
+        capturedMotion.push([...theta]);
+        capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+      }
+    }
+  }
+
+  function EatMotion() {
+    if (isEating) {
       // 머리 각도 업데이트
       accumulatedAngle += headDirection;
       if (accumulatedAngle >= -20) {
-          headDirection = -Math.abs(headDirection);
-          accumulatedAngle = -20; // 30도에서 방향 전환
+        headDirection = -Math.abs(headDirection);
+        accumulatedAngle = -20; // 30도에서 방향 전환
       } else if (accumulatedAngle <= -60) {
-          headDirection = Math.abs(headDirection);
-          accumulatedAngle = -60; // -30도에서 방향 전환
+        headDirection = Math.abs(headDirection);
+        accumulatedAngle = -60; // -30도에서 방향 전환
       }
 
       theta[head1Id] = accumulatedAngle; // 머리 각도 설정
@@ -920,53 +1024,60 @@ function EatMotion() {
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
       requestAnimationFrame(EatMotion);
-  }
-}
-
-function PeeMotion() {
-  if (isPeeing) {
-    // torso angle을 천천히 변경
-    if (!torsoRotated) {
-      torsoAngle += 1;
-      if (torsoAngle >= 30) {
-        torsoAngle = 30;
-        torsoRotated = true; // 몸이 회전했음을 표시
-      }
-    } else if (!legLifted) {
-      // 한 발을 들어올리는 동작
-      legLiftAngle += legLiftDirection * 2;
-      if (legLiftAngle >= 45) {
-        legLiftAngle = 45;
-        legLifted = true; // 다리가 들어올려졌음을 표시
-
-        // 다리를 일정 시간 후에 내리기 위해 타이머 설정
-        setTimeout(function() {
-          legLiftDirection = -1; // 다리 내리는 방향으로 변경
-          legLowered = true; // 다리를 내릴 준비 완료
-          PeeMotion(); // 다리를 내리는 동작 시작
-        }, 2000); // 2초 후에 다리 내리기
-      }
-    } else if (legLowered && legLiftAngle > 0) {
-      // 다리를 내리는 동작
-      legLiftAngle += legLiftDirection * 2;
-      if (legLiftAngle <= 0) {
-        legLiftAngle = 0;
-        legLowered = false; // 다리 내리기 완료
-        isPeeing = false; // 동작 완료
-        
+      if (isCapturing) {
+        capturedMotion.push([...theta]);
+        capturedMove.push([torsoX2, torsoY2, torsoZ2]);
       }
     }
+  }
 
-    theta[torsoId] = torsoAngle;
-    theta[leftUpperLegId] = legLiftAngle; // 왼쪽 다리 들어올림
-
-    for (var i = 0; i < numNodes2; i++) initNodes2(i);
-
+  function PeeMotion() {
     if (isPeeing) {
-      requestAnimationFrame(PeeMotion);
+      // torso angle을 천천히 변경
+      if (!torsoRotated) {
+        torsoAngle += 1;
+        if (torsoAngle >= 30) {
+          torsoAngle = 30;
+          torsoRotated = true; // 몸이 회전했음을 표시
+        }
+      } else if (!legLifted) {
+        // 한 발을 들어올리는 동작
+        legLiftAngle += legLiftDirection * 2;
+        if (legLiftAngle >= 45) {
+          legLiftAngle = 45;
+          legLifted = true; // 다리가 들어올려졌음을 표시
+
+          // 다리를 일정 시간 후에 내리기 위해 타이머 설정
+          setTimeout(function () {
+            legLiftDirection = -1; // 다리 내리는 방향으로 변경
+            legLowered = true; // 다리를 내릴 준비 완료
+            PeeMotion(); // 다리를 내리는 동작 시작
+          }, 2000); // 2초 후에 다리 내리기
+        }
+      } else if (legLowered && legLiftAngle > 0) {
+        // 다리를 내리는 동작
+        legLiftAngle += legLiftDirection * 2;
+        if (legLiftAngle <= 0) {
+          legLiftAngle = 0;
+          legLowered = false; // 다리 내리기 완료
+          isPeeing = false; // 동작 완료
+        }
+      }
+
+      theta[torsoId] = torsoAngle;
+      theta[leftUpperLegId] = legLiftAngle; // 왼쪽 다리 들어올림
+
+      for (var i = 0; i < numNodes2; i++) initNodes2(i);
+
+      if (isPeeing) {
+        requestAnimationFrame(PeeMotion);
+      }
+      if (isCapturing) {
+        capturedMotion.push([...theta]);
+        capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+      }
     }
   }
-}
 
 function lieDownMotion() {
   if (isLyingDown) {
