@@ -19,7 +19,7 @@ var torsoRotated = false; // 몸이 회전했는지 여부를 나타내는 플�
 var legLifted = false; // 다리가 들어올려졌는지 여부를 나타내는 플래그
 var legLowered = false; // 다리가 내려갔는지 여부를 나타내는 플래그
 
-var walkDirection = 1; // 1이면 앞으로 걷고, -1이면 뒤로 걷기
+var legDirection  = 1; // 1이면 앞으로 걷고, -1이면 뒤로 걷기
 var runDirection = 7; // 각도 변화 속도를 빠르게 하기 위해 값 증가
 var headDirection = 2;
 
@@ -728,7 +728,7 @@ window.onload = function init() {
             // 배열의 끝에 도달하면 인터벌 중지
             clearInterval(interval);
         }
-    }, 30); // 간격은 밀리초 단위로 설정, 조정 가능
+    }, 10); // 간격은 밀리초 단위로 설정, 조정 가능
 };
 
 document.getElementById("walkButton").onclick = function() {
@@ -736,7 +736,7 @@ document.getElementById("walkButton").onclick = function() {
   isRunning = false;
   isEating = false;
   isPeeing = false;
-  walkDirection = 1; // 애니메이션 시작 시 방향 초기화
+  legDirection  = 1; // 애니메이션 시작 시 방향 초기화
   accumulatedAngle = 0; // 초기화
   theta[head1Id] = 0; 
   walkMotion();
@@ -810,12 +810,12 @@ document.getElementById("stopButton").onclick = function() {
 function walkMotion() {
   if (isWalking) {
       // 누적 각도 업데이트
-      accumulatedAngle += walkDirection;
+      accumulatedAngle += legDirection ;
       if (accumulatedAngle >= 45) {
-          walkDirection = -1;
+          legDirection  = -1;
           accumulatedAngle = 45; // 45도에서 방향 전환
       } else if (accumulatedAngle <= 0) {
-          walkDirection = 1;
+          legDirection  = 1;
           accumulatedAngle = 0; // 0도에서 방향 전환
           legPhase = (legPhase + 1) % 2; // 다리 단계를 변경
       }
@@ -831,7 +831,7 @@ function walkMotion() {
           theta[leftLowerArmId] = (accumulatedAngle / 4);
           theta[leftUpperLegId] = (accumulatedAngle / 2);
           theta[leftLowerLegId] = -(accumulatedAngle / 4);
-          torsoX2 += 0.02;
+          torsoX2 += 0.03;
       } else {
           theta[leftUpperArmId] = accumulatedAngle;
           theta[leftLowerArmId] = -(accumulatedAngle / 2);
@@ -842,7 +842,7 @@ function walkMotion() {
           theta[rightLowerArmId] = (accumulatedAngle / 4);
           theta[rightUpperLegId] = (accumulatedAngle / 2);
           theta[rightLowerLegId] = -(accumulatedAngle / 4);
-          torsoX2 += 0.02;
+          torsoX2 += 0.03;
       }
 
       // 몸통의 x 좌표를 업데이트하여 앞으로 나아가도록 함
@@ -851,6 +851,10 @@ function walkMotion() {
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
       requestAnimationFrame(walkMotion);
+      if (isCapturing) {
+        capturedMotion.push([...theta]);
+        capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+      }
   }
 }
 
@@ -859,9 +863,9 @@ function runMotion() {
   if (isRunning) {
     // 누적 각도 업데이트
     accumulatedAngle += runDirection;
-    if (accumulatedAngle >= 90) {
+    if (accumulatedAngle >= 45) {
       runDirection = -Math.abs(runDirection);
-      accumulatedAngle = 90; // 90도에서 방향 전환
+      accumulatedAngle = 45; // 90도에서 방향 전환
     } else if (accumulatedAngle <= 0) {
       runDirection = Math.abs(runDirection);
       accumulatedAngle = 0; // 0도에서 방향 전환
@@ -889,6 +893,10 @@ function runMotion() {
     for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
     requestAnimationFrame(runMotion);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }    
   }
 }
 
@@ -909,6 +917,10 @@ function EatMotion() {
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
       requestAnimationFrame(EatMotion);
+      if (isCapturing) {
+        capturedMotion.push([...theta]);
+        capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+      }
   }
 }
 
@@ -953,6 +965,10 @@ function PeeMotion() {
 
     if (isPeeing) {
       requestAnimationFrame(PeeMotion);
+    }
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
     }
   }
 }
