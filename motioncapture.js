@@ -14,6 +14,7 @@ var isRunning = false;
 var isEating = false;
 var isPeeing = false;
 var isLyingDown = false;
+var isShaking = false;
 
 var torsoRotated = false; // 몸이 회전했는지 여부를 나타내는 플래그
 var legLifted = false; // 다리가 들어올려졌는지 여부를 나타내는 플래그
@@ -23,7 +24,7 @@ var walkDirection = 1; // 1이면 앞으로 걷고, -1이면 뒤로 걷기
 var runDirection = 7; // 각도 변화 속도를 빠르게 하기 위해 값 증가
 var headDirection = 2;
 
-var accumulatedAngle = 0; // 누적 각도
+var accumulatedAngle   = 0; // 누적 각도
 var legPhase = 0; // 현재 다리의 단계
 var legLiftDirection = 1; // 다리 각도 변화 방향
 
@@ -76,6 +77,7 @@ var rightLowerLegId = 9;
 var tailId = 11;
 var leftEarId = 12;
 var rightEarId = 13;
+var leftUpperLegId2 = 14;
 //var torsoId = 14;
 
 var torsoHeight = 2;
@@ -103,7 +105,7 @@ var numAngles = 11;
 var numNodes2 = 14;
 
 //var theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-var theta = [225, 0, 0, 0, 0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0];
+var theta = [225, 0, 0, 0, 0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0, 0];
 
 var stack = [];
 var stack2 = [];
@@ -287,16 +289,17 @@ function initNodes2(Id) {
         );
         break;
 
-    case leftUpperLegId:
-        m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-        m2 = mult(m2, rotate(theta[leftUpperLegId], 0, 0, 1)); // Rotate around Z-axis
-        figure2[leftUpperLegId] = createNode(
-            m2,
-            leftUpperLeg2,
-            rightUpperLegId,
-            leftLowerLegId
-        );
-        break;
+        case leftUpperLegId:
+          m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+          m2 = mult(m2, rotate(theta[leftUpperLegId], 0, 0, 1)); // Z축 회전
+          figure2[leftUpperLegId] = createNode(m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId);
+          break;
+    
+        case leftUpperLegId2:
+          m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+          m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
+          figure2[leftUpperLegId2] = createNode(m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId);
+          break;
 
     case rightUpperLegId:
         m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
@@ -623,6 +626,12 @@ window.onload = function init() {
     initNodes2(leftUpperLegId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
+  document.getElementById("left_upper_leg2").oninput = function (event) {
+    theta[leftUpperLegId2] = event.target.value;
+    initNodes2(leftUpperLegId2);
+    if (isCapturing) capturedMotion.push([...theta]);
+  };
+
   document.getElementById("left_lower_leg").oninput = function (event) {
     theta[leftLowerLegId] = event.target.value;
     initNodes2(leftLowerLegId);
@@ -643,6 +652,8 @@ window.onload = function init() {
     initNodes2(head2Id);
     if (isCapturing) capturedMotion.push([...theta]);
   };
+  
+
 
   document.getElementById("walk").oninput = function (event) {
     theta[rightUpperArmId] = event.target.value;
@@ -957,49 +968,53 @@ function PeeMotion() {
   }
 }
 
-
 function lieDownMotion() {
   if (isLyingDown) {
-    // 다리 각도를 천천히 변경
-    accumulatedAngle += legLiftDirection;
-    if (accumulatedAngle >= 45) {
-      accumulatedAngle = 45;
-      legLiftDirection = -1;
-    } else if (accumulatedAngle <= 0) {
-      accumulatedAngle = 0;
-      legLiftDirection = 1;
-      isLyingDown = false;
-      // 동작 완료 후 변수 초기화
-      //resetLieDownVariables();
-    }
+      // 다리 각도를 천천히 변경
+      accumulatedAngle += legLiftDirection*4;
+      if (accumulatedAngle >= 90) {
+          accumulatedAngle = 90;
+          legLiftDirection = 0; // 각도 변화 멈춤
+      } else if (accumulatedAngle <= 0) {
+          accumulatedAngle = 0;
+          legLiftDirection = 1;
+          isLyingDown = false;
+          // 동작 완료 후 변수 초기화
+          resetLieDownVariables();
+      }
 
-    theta[rightUpperArmId] = accumulatedAngle;
-    theta[rightUpperLegId] = accumulatedAngle;
-    theta[leftUpperArmId] = accumulatedAngle;
-    theta[leftUpperLegId] = accumulatedAngle;
+      theta[rightUpperArmId] = accumulatedAngle;
+      theta[rightUpperLegId] = -accumulatedAngle;
+      theta[leftUpperArmId] = accumulatedAngle;
+      theta[leftUpperLegId] = -accumulatedAngle;
 
-    // 모델의 위치를 천천히 낮춤
-    torsoY2 -= 0.05;
-    if (torsoY2 <= -2) {
-      torsoY2 = -2;
-    }
+      // 모델의 위치를 천천히 낮춤
+      if (accumulatedAngle < 90) {
+          torsoY2 -= 0.02;
+          if (torsoY2 <= -0.5) { // 너무 낮지 않도록 조정
+              torsoY2 = -0.5;
+          }
+      }
 
-    // 모델의 위치를 업데이트
-    theta[torsoId] = translate(3.0, -1.0, -5.0);
+      // 모델의 위치를 업데이트
+      m2 = mat4();
+      m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
+      initNodes2(torsoId);
 
-    for (var i = 0; i < numNodes2; i++) initNodes2(i);
+      for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
-    requestAnimationFrame(lieDownMotion);
+      if (isLyingDown) {
+          requestAnimationFrame(lieDownMotion);
+      }
   }
 }
 
 function resetLieDownVariables() {
   // 관련 변수 초기화
   accumulatedAngle = 0;
-  torsoHeight = 0;
+  torsoY2 = 0;
   legLiftDirection = 1;
 }
-
 
   gl.uniform4fv(
     gl.getUniformLocation(program, "ambientProduct"),
