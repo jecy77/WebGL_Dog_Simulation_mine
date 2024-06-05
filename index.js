@@ -615,13 +615,30 @@ function motionCapturePlay(motionCaptureData) {
     }, 10); // 간격은 밀리초 단위로 설정, 조정 가능
 };
 
-document.getElementById("walkEatPeeRun").onclick = function() {
+document.getElementById("walkEatPeeRunMotionData").onclick = function() {
 	motionCapturePlay(walkEatPeeRunMotionData);
 };
 
-document.getElementById("shortWalk").onclick = function() {
-	motionCapturePlay(shortWalk);
+document.getElementById("dontEatMotionData").onclick = function() {
+	motionCapturePlay(dontEatMotionData);
 }
+
+document.getElementById("eatMotionData").onclick = function() {
+	motionCapturePlay(eatMotionData);
+}
+
+document.getElementById("peeMotionData").onclick = function() {
+	motionCapturePlay(peeMotionData);
+}
+
+document.getElementById("walkAwayMotionData").onclick = function() {
+	motionCapturePlay(walkAwayMotionData);
+}
+
+document.getElementById("runAwayMotionData").onclick = function() {
+	motionCapturePlay(runAwayMotionData);
+}
+
 
 function resetLieDownVariables() {
   // 관련 변수 초기화
