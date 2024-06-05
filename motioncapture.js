@@ -9,12 +9,15 @@ var modelViewMatrix;
 var instanceMatrix;
 var modelViewMatrixLoc;
 
+
+
 var isWalking = false;
 var isRunning = false;
 var isEating = false;
 var isPeeing = false;
 var isLyingDown = false;
 var isShaking = false;
+var isWaggingTail = false;
 
 var torsoRotated = false; // 몸이 회전했는지 여부를 나타내는 플래그
 var legLifted = false; // 다리가 들어올려졌는지 여부를 나타내는 플래그
@@ -23,6 +26,8 @@ var legLowered = false; // 다리가 내려갔는지 여부를 나타내는 플�
 var legDirection = 1; // 1이면 앞으로 걷고, -1이면 뒤로 걷기
 var runDirection = 7; // 각도 변화 속도를 빠르게 하기 위해 값 증가
 var headDirection = 2;
+var shakeDirection = 1;
+var tailDirection = 1;
 
 var accumulatedAngle   = 0; // 누적 각도
 var legPhase = 0; // 현재 다리의 단계
@@ -34,6 +39,8 @@ var torsoAngle = 0; // torso angle을 위한 변수 추가
 var legLiftAngle = 0; // 다리 각도
 var accumulatedOffset = 0; // 각도 누적 오프셋
 var torsoHeight = 0; // 모델의 위치를 낮추기 위한 변수 추가
+var shakeAngle = 0;
+var tailAngle = 0;
 
 var vertices = [
   vec4(-0.5, -0.5, 0.5, 1.0),
@@ -76,7 +83,7 @@ var rightLowerLegId = 9;
 var tailId = 11;
 var leftEarId = 12;
 var rightEarId = 13;
-var leftUpperLegId2 = 14;
+var leftUpperLegId2 = 15;
 //var torsoId = 14;
 
 var torsoHeight = 2;
@@ -101,10 +108,14 @@ var bowlWidth = 3;
 
 var numNodes = 1;
 var numAngles = 11;
-var numNodes2 = 14;
+var numNodes2 = 16;
 
 //var theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-var theta = [225, 0, 0, 0, 0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0, 0];
+var theta = [225, 0, 0, 0, 0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0, 0, 0];
+
+var initialHeadAngle = theta[head2Id];
+var initialTorsoAngle = theta[torsoId];
+var initialTorsoAngle2 = theta[torsoId2];
 
 var stack = [];
 var stack2 = [];
@@ -236,11 +247,12 @@ function initNodes2(Id) {
   switch (Id) {
     case torsoId:
     case torsoId2:
-      m2 = rotate(theta[torsoId], 0, 1, 0);
+      m2 = translate(torsoX2, torsoY2, torsoZ2); 
+      m2 = mult(m2, rotate(theta[torsoId], 0, 1, 0));
       m2 = mult(m2, rotate(torsoR, 1, 0, 0));
       m2 = mult(m2, rotate(torsoR2, 0, 0, 1));
       m2 = mult(m2, rotate(theta[torsoId2], 1, 0, 0));
-      m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
+      //m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
       figure2[torsoId] = createNode(m2, torso2, null, headId);
 
       break;
@@ -287,17 +299,18 @@ function initNodes2(Id) {
       );
       break;
 
-        case leftUpperLegId:
+      case leftUpperLegId:
+      case leftUpperLegId2:
           m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
           m2 = mult(m2, rotate(theta[leftUpperLegId], 0, 0, 1)); // Z축 회전
+          m2 = mult(m2, rotate(theta[leftUpperLegId2], 1, 0, 0)); // Y축 회전
           figure2[leftUpperLegId] = createNode(m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId);
           break;
-    
-        case leftUpperLegId2:
-          m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-          m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
-          figure2[leftUpperLegId2] = createNode(m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId);
-          break;
+        // case leftUpperLegId2:
+        //   m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+        //   m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
+        //   figure2[leftUpperLegId2] = createNode(m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId);
+        //   break;
 
     case rightUpperLegId:
       m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
@@ -710,6 +723,7 @@ window.onload = function init() {
     theta[leftUpperLegId2] = event.target.value;
     initNodes2(leftUpperLegId2);
     if (isCapturing) capturedMotion.push([...theta]);
+    capturedMove.push([torsoX2, torsoY2, torsoZ2]);
   };
 
   document.getElementById("left_lower_leg").oninput = function (event) {
@@ -746,6 +760,16 @@ window.onload = function init() {
       capturedMove.push([torsoX2, torsoY2, torsoZ2]);
     }
   };
+
+  document.getElementById("tail").oninput = function (event) {
+    theta[tailId] = event.target.value;
+    initNodes2(tailId);
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
+  };
+
 
   // document.getElementById("walk").oninput = function (event) {
   //   theta[rightUpperArmId] = event.target.value;
@@ -845,7 +869,10 @@ window.onload = function init() {
     isRunning = false;
     isEating = false;
     isPeeing = false;
+    isShaking = false;
     legDirection = 1; // 애니메이션 시작 시 방향 초기화
+    theta[torsoId] = 225;
+    theta[torsoId2] = 0;
     accumulatedAngle = 0; // 초기화
     theta[head1Id] = 0;
     walkMotion();
@@ -856,6 +883,9 @@ window.onload = function init() {
     isRunning = true;
     isEating = false;
     isPeeing = false;
+    isShaking = false;
+    theta[torsoId] = 225;
+    theta[torsoId2] = 0;
     runDirection = 7; // 애니메이션 시작 시 방향 초기화
     accumulatedAngle = 0; // 초기화
     theta[head1Id] = 0;
@@ -867,6 +897,9 @@ window.onload = function init() {
     isWalking = false;
     isEating = true;
     isPeeing = false;
+    isShaking = false;
+    theta[torsoId] = 225;
+    theta[torsoId2] = 0;
     accumulatedAngle = 0; // 애니메이션 시작 시 초기화
     headDirection = 2;
     EatMotion();
@@ -877,8 +910,11 @@ window.onload = function init() {
     isWalking = false;
     isEating = false;
     isPeeing = true;
+    isShaking = false;
     torsoAngle = 0; // 초기화
     legLiftAngle = 0; // 초기화
+    theta[torsoId] = 225;
+    theta[torsoId2] = 0;
     torsoRotated = false; // 초기화
     legLifted = false; // 초기화
     legLowered = false; // 초기화
@@ -891,16 +927,48 @@ window.onload = function init() {
     isWalking = false;
     isEating = false;
     isPeeing = false;
+    isShaking = false;
     accumulatedAngle = 0; // 초기화
+    theta[torsoId] = 225;
+    theta[torsoId2] = 0;
     theta[head1Id] = 0;
     lieDownMotion();
   };
+
+  document.getElementById("shakeButton").onclick = function() {
+    isRunning = false;
+    isWalking = false;
+    isEating = false;
+    isPeeing = false;
+    isShaking = true;
+    shakeAngle = 0; // 초기화
+    shakeDirection = 1; // 초기화
+    initialHeadAngle = theta[head2Id]; // 초기 머리 각도 저장
+    initialTorsoAngle = theta[torsoId]; // 초기 몸통 각도 저장
+    initialTorsoAngle2 = theta[torsoId2];
+    shakeMotion();
+  };
+
+  document.getElementById("wagTailButton").onclick = function() {
+    isRunning = false;
+    isWalking = false;
+    isEating = false;
+    isPeeing = false;
+    isShaking = false;
+    isWaggingTail = true;
+    tailAngle = 0; // 초기화
+    tailDirection = 1; // 초기화
+    wagTailMotion();
+};
 
   document.getElementById("stopButton").onclick = function () {
     isRunning = false;
     isWalking = false;
     isEating = false;
-    isPeeing = false; // 모든 애니메이션 플래그를 초기화
+    isPeeing = false;
+    isShaking = false;
+    isLyingDown = false;
+    isWaggingTail = false; // 모든 애니메이션 플래그를 초기화
 
     // 다리 각도 초기화
     theta[head1Id] = 0;
@@ -912,6 +980,9 @@ window.onload = function init() {
     theta[rightLowerLegId] = 0;
     theta[leftLowerArmId] = 0;
     theta[leftLowerLegId] = 0;
+    theta[torsoId] = 225;
+    theta[torsoId2] = 0;
+    theta[tailId] = 0;
     for (var i = 0; i < numNodes2; i++) initNodes2(i);
   };
 
@@ -939,7 +1010,7 @@ window.onload = function init() {
         theta[leftLowerArmId] = accumulatedAngle / 4;
         theta[leftUpperLegId] = accumulatedAngle / 2;
         theta[leftLowerLegId] = -(accumulatedAngle / 4);
-        torsoX2 += 0.03;
+        torsoX2 -= 0.03;
       } else {
         theta[leftUpperArmId] = accumulatedAngle;
         theta[leftLowerArmId] = -(accumulatedAngle / 2);
@@ -950,7 +1021,7 @@ window.onload = function init() {
         theta[rightLowerArmId] = accumulatedAngle / 4;
         theta[rightUpperLegId] = accumulatedAngle / 2;
         theta[rightLowerLegId] = -(accumulatedAngle / 4);
-        torsoX2 += 0.03;
+        torsoX2 -= 0.03;
       }
 
       // 몸통의 x 좌표를 업데이트하여 앞으로 나아가도록 함
@@ -995,7 +1066,7 @@ window.onload = function init() {
       }
 
       // 몸통의 x 좌표를 업데이트하여 앞으로 나아가도록 함
-      torsoX2 += 0.1;
+      torsoX2 -= 0.1;
 
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
@@ -1030,7 +1101,6 @@ window.onload = function init() {
       }
     }
   }
-
   function PeeMotion() {
     if (isPeeing) {
       // torso angle을 천천히 변경
@@ -1046,7 +1116,7 @@ window.onload = function init() {
         if (legLiftAngle >= 45) {
           legLiftAngle = 45;
           legLifted = true; // 다리가 들어올려졌음을 표시
-
+  
           // 다리를 일정 시간 후에 내리기 위해 타이머 설정
           setTimeout(function () {
             legLiftDirection = -1; // 다리 내리는 방향으로 변경
@@ -1061,14 +1131,19 @@ window.onload = function init() {
           legLiftAngle = 0;
           legLowered = false; // 다리 내리기 완료
           isPeeing = false; // 동작 완료
+  
+          // 원위치로 돌아가기 위해 변수를 초기화
+          resetPeeMotion();
+          return;
         }
       }
-
+  
       theta[torsoId] = torsoAngle;
-      theta[leftUpperLegId] = legLiftAngle; // 왼쪽 다리 들어올림
-
+      theta[torsoId2] = 0.8 * torsoAngle;
+      theta[leftUpperLegId2] = legLiftAngle; // 왼쪽 다리 들어올림
+  
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
-
+  
       if (isPeeing) {
         requestAnimationFrame(PeeMotion);
       }
@@ -1077,6 +1152,22 @@ window.onload = function init() {
         capturedMove.push([torsoX2, torsoY2, torsoZ2]);
       }
     }
+  }
+  
+  function resetPeeMotion() {
+    // 모든 관련 변수를 초기화하고 원위치로 돌아감
+    torsoAngle = 0;
+    legLiftAngle = 0;
+    torsoRotated = false;
+    legLifted = false;
+    legLowered = false;
+    legLiftDirection = 1;
+    
+    theta[torsoId2] = 0;
+    theta[leftUpperLegId2] = 0;
+  
+    // 애니메이션 초기화
+    for (var i = 0; i < numNodes2; i++) initNodes2(i);
   }
 
 function lieDownMotion() {
@@ -1126,6 +1217,46 @@ function resetLieDownVariables() {
   torsoY2 = 0;
   legLiftDirection = 1;
 }
+
+
+
+function shakeMotion() {
+  if (isShaking) {
+    // 회전 각도 업데이트
+    shakeAngle += shakeDirection * 5;
+    if (shakeAngle >= 10 || shakeAngle <= -10) {
+      shakeDirection *= -1; // 방향 전환
+    }
+
+    // 머리와 몸 회전 방향을 반대로 설정
+    theta[head2Id] = initialHeadAngle + shakeAngle;
+    theta[torsoId] = initialTorsoAngle - shakeAngle;
+    theta[torsoId2] = initialTorsoAngle2 + 0.5*shakeAngle;
+
+    for (var i = 0; i < numNodes2; i++) initNodes2(i);
+
+    requestAnimationFrame(shakeMotion);
+  }
+}
+
+function wagTailMotion() {
+  if (isWaggingTail) {
+      // 꼬리 각도 업데이트
+      tailAngle += tailDirection * 5;
+      if (tailAngle >= 30 || tailAngle <= -30) {
+          tailDirection *= -1; // 방향 전환
+      }
+
+      // 꼬리 회전 설정
+      theta[tailId] = tailAngle;
+
+      for (var i = 0; i < numNodes2; i++) initNodes2(i);
+
+      requestAnimationFrame(wagTailMotion);
+  }
+}
+
+
 
   gl.uniform4fv(
     gl.getUniformLocation(program, "ambientProduct"),
