@@ -52,13 +52,27 @@ var vertices = [
   vec4(-0.5, 0.5, -0.5, 1.0),
   vec4(0.5, 0.5, -0.5, 1.0),
   vec4(0.5, -0.5, -0.5, 1.0),
+  vec4(-10.0, -6.0, -10.0, 1.0),
+  vec4(-10.0, -6.0, 10.0, 1.0),
+  vec4(10.0, -6.0, 10.0, 1.0),
+  vec4(10.0, -6.0, -10.0, 1.0),
+  vec4(-10.0, 10.0, -10.0, 1.0),
+  vec4(-10.0, 10.0, 10.0, 1.0),
+  vec4(10.0, 10.0, 10.0, 1.0),
+  vec4(10.0, 10.0, -10.0, 1.0),
+  vec4(0.0, 7.0, -8.0, 1.0),  // Top vertex
+  vec4(-10.0, 6.0, -8.0, 1.0), // Bottom left vertex
+  vec4(10.0, 6.0, -8.0, 1.0)  // Bottom right vertex
 ];
 
 var groundVertices = [
   vec4(-10.0, -6.0, -10.0, 1.0),
   vec4(-10.0, -6.0, 10.0, 1.0),
   vec4(10.0, -6.0, 10.0, 1.0),
-  vec4(10.0, -6.0, -10.0, 1.0)
+  vec4(10.0, -6.0, -10.0, 1.0),
+  vec4(0.0, 7.0, -8.0, 1.0),  // Top vertex
+  vec4(-10.0, 6.0, -8.0, 1.0), // Bottom left vertex
+  vec4(10.0, 6.0, -8.0, 1.0)  // Bottom right vertex
 ];
 
 var skyVertices = [
@@ -69,12 +83,12 @@ var skyVertices = [
 ];
 
 var triangleVertices = [
-  vec4(2.0, 2.0, 0.0, 1.0),  // Top vertex
-  vec4(1.0, -1.0, 0.0, 1.0), // Bottom left vertex
-  vec4(3.0, -1.0, 0.0, 1.0)  // Bottom right vertex
+  vec4(0.0, 7.0, -8.0, 1.0),  // Top vertex
+  vec4(-10.0, 6.0, -8.0, 1.0), // Bottom left vertex
+  vec4(10.0, 6.0, -8.0, 1.0)  // Bottom right vertex
 ];
 
-var lightPosition = vec4(5.0, -5.0, 15.0, 0.0);
+var lightPosition = vec4(8.0, -10.0, 17.0, 0.0);
 var lightAmbient = vec4(0.9, 0.9, 0.9, 1.0);
 var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var lightSpecular = vec4(1.0, 1.0, 0.0, 1.0);
@@ -288,7 +302,7 @@ function initNodes(Id) {
       break;
 
     case rightLowerArmId:
-      m = translate(-0.8, 0, 1.5);
+      m = translate(-0.8, 0, 1.7);
       figure [rightLowerArmId] = createNode(m, feed, null, null )
       break;
   }
@@ -968,7 +982,6 @@ window.onload = function init() {
     isEating = true;
     isPeeing = false;
     isShaking = false;
-    theta[torsoId] = 225;
     theta[torsoId2] = 0;
     accumulatedAngle = 0; // 애니메이션 시작 시 초기화
     headDirection = 2;
@@ -981,9 +994,9 @@ window.onload = function init() {
     isEating = false;
     isPeeing = true;
     isShaking = false;
+    isLyingDown = false;
     torsoAngle = 0; // 초기화
     legLiftAngle = 0; // 초기화
-    theta[torsoId] = 225;
     theta[torsoId2] = 0;
     torsoRotated = false; // 초기화
     legLifted = false; // 초기화
@@ -999,7 +1012,6 @@ window.onload = function init() {
     isPeeing = false;
     isShaking = false;
     accumulatedAngle = 0; // 초기화
-    theta[torsoId] = 225;
     theta[torsoId2] = 0;
     theta[head1Id] = 0;
     lieDownMotion();
@@ -1050,9 +1062,10 @@ window.onload = function init() {
     theta[rightLowerLegId] = 0;
     theta[leftLowerArmId] = 0;
     theta[leftLowerLegId] = 0;
-    theta[torsoId] = 225;
+    
     theta[torsoId2] = 0;
     theta[tailId] = 0;
+    theta[leftUpperLegId2] = 0;
     for (var i = 0; i < numNodes2; i++) initNodes2(i);
   };
 
@@ -1356,38 +1369,27 @@ function wagTailMotion() {
 
 function drawGround() {
   instanceMatrix = mat4();
-  instanceMatrix = mult(instanceMatrix, translate(0.0,-4.0, -10.0)); // Y 위치 조정
-  instanceMatrix = mult(instanceMatrix, scale4(20.0, 12.0, 0.1)); // 크기 조정
+  instanceMatrix = mult(instanceMatrix, translate(0.0,-5.5, -8.0)); // Y 위치 조정
+  instanceMatrix = mult(instanceMatrix, scale4(20.0, 12, 0.1)); // 크기 조정
 
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(vec4(0.2, 0.8, 0.2, 1.0))); // 땅의 색상 (초록색)
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(vec4(0.4157, 0.5216, 0.0941, 1.0))); // 땅의 색상 (초록색)
   gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // 단일 평면 그리기
 }
 
 
 function drawSky() {
   instanceMatrix = mat4();
-  instanceMatrix = mult(instanceMatrix, translate(0.0, 5.0, -5.0)); // 위치 조정
-  instanceMatrix = mult(instanceMatrix, scale4(20.0, 11.0, 0.1)); // 크기 조정
-
+  instanceMatrix = mult(instanceMatrix, translate(0.0, 0.0, -9.0)); // 위치 조정
+  instanceMatrix = mult(instanceMatrix, scale4(20.0, 20.0, 0.1)); // 크기 조정
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(vec4(0.5, 0.7, 1.0, 1.0))); // 하늘의 색상 (파란색)
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(vec4(0.6980, 0.7686, 0.9314, 0.8))); // 하늘의 색상 (파란색)
   gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // 단일 평면 그리기
-}
-
-function drawTriangle() {
-  instanceMatrix = mat4();
-  instanceMatrix = mult(instanceMatrix, translate(0.0, 0.0, -5.0)); // Adjust position
-  instanceMatrix = mult(instanceMatrix, scale4(3.0, 3.0, 3.0)); // Adjust size
-
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(vec4(1.0, 0.0, 0.5, 1.0))); // Pink color
-  gl.drawArrays(gl.TRIANGLES, 0, 3); // Draw the triangle
 }
 
 var render = function () {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  modelViewMatrix = translate(-3.0, -1.2, 5.0);
+  modelViewMatrix = translate(-3.0, -1.2, 5.6);
 
     // Draw the ground
     drawGround();
@@ -1395,7 +1397,8 @@ var render = function () {
     // Draw the sky
     drawSky();
 
-    drawTriangle();
+    //drawTriangle();
+    //drawTriangle2();
 
     
 
@@ -1404,7 +1407,7 @@ var render = function () {
   for (i = 0; i < numNodes; i++) initNodes(i);
   for (i = 0; i < numNodes2; i++) initNodes2(i);
   traverse(torsoId);
-  modelViewMatrix = translate(3.0, -1.0, -5.0);
+  modelViewMatrix = translate(3.0, -1.0, -5.5);
   traverse2(torsoId);
   requestAnimFrame(render);
 };
