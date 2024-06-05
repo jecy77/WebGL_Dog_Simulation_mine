@@ -79,97 +79,110 @@ void main()
             <canvas id="gl-canvas" width="512" height="512">
                 Oops ... your browser doesn't support the HTML5 canvas element
             </canvas>
+            <ul>
+                <li>1. motioncapture start 버튼을 눌러 모션 캡쳐 녹화를 시작하세요.</li>
+                <li>2. 슬라이더나 버튼을 이용해서 강아지에 움직임을 주어보세요.</li>
+                <li>3. motioncapture stop 버튼을 눌러 녹화를 중지하세요.</li>
+                <li>4. motioncapture play 버튼을 눌러 녹화된 모션을 다시 재생해보세요.</li>
+                <li>5. motioncapture print 버튼을 눌러 녹화된 모션 데이터를 콘솔에 출력해서, 가져다가 사용해보세요.</li>
+            </ul>
         </div>
         <!-- 동작 버튼들 -->
         <div class="controls-container">
             <div class="sliders">
-                <div>
-                    torso angle -180 <input id="torso" type="range" min="45" max="405" step="10" value="225" />
-                    180
-                </div><br />
-                
-                <div>
-                    torso2 angle -180 <input id="torso2" type="range" min="-180" max="180" step="10" value="0" />
-                    180
-                </div><br />
-
-                <div>
+                <!-- <div>
                     walk angle -180 <input id="walk" type="range" min="-70" max="70" step="5" value="0" />
                     180
                 </div><br />
 
                 <div>
-                    run angle -180 <input id="run" type="range" min="-180" max="180" step="10" value="0" />
+                    run angle -180 <input id="run" type="range" min="-180" max="180" step="1" value="0" />
+                    180
+                </div><br /> -->
+                <div>
+                    make delay (슬라이더 움직일 때마다 시간이 흐름) <input id="delayDummy" type="range" min="-120" max="120" step="1" value="-120" />
+                </div><br />
+
+                <div>
+                    head2 angle -120 <input id="head2" type="range" min="-120" max="90" step="1" value="-90" />
+                    90
+                </div><br />
+
+                <div>
+                    head1 angle -180 <input id="head1" type="range" min="-180" max="180" step="1" value="" />
                     180
                 </div><br />
 
                 <div>
-                    head2 angle -180 <input id="head2" type="range" min="-180" max="180" step="10" value="0" />
+                    torso angle 45 <input id="torso" type="range" min="45" max="405" step="1" value="225" />
+                    405
+                </div><br />
+
+                <div>
+                    torso2 angle -180 <input id="torso2" type="range" min="-180" max="180" step="1" value="0" />
                     180
                 </div><br />
 
                 <div>
-                    head1 angle -180 <input id="head1" type="range" min="-180" max="180" step="10" value="0" />
-                    180
-                </div><br />
-
-                <div>
-                    left upper arm angle -180 <input id="left_upper_arm" type="range" min="-180" max="180" step="10"
+                    left upper arm angle -180 <input id="left_upper_arm" type="range" min="-180" max="180" step="1"
                         value="0" />
                     180
                 </div><br />
                 <div>
-                    left lower arm angle -180 <input id="left_lower_arm" type="range" min="-180" max="180" step="10"
+                    left lower arm angle -180 <input id="left_lower_arm" type="range" min="-180" max="180" step="1"
                         value="0" />
                     180
                 </div><br />
                 <div>
-                    right upper arm angle -180 <input id="right_upper_arm" type="range" min="-180" max="180" step="10"
+                    right upper arm angle -180 <input id="right_upper_arm" type="range" min="-180" max="180" step="1"
                         value="0" />
                     180
                 </div><br />
                 <div>
-                    right lower arm angle -180 <input id="right_lower_arm" type="range" min="-180" max="180" step="10"
+                    right lower arm angle -180 <input id="right_lower_arm" type="range" min="-180" max="180" step="1"
                         value="0" />
                     180
                 </div><br />
                 <div>
-                    left upper leg angle -180 <input id="left_upper_leg" type="range" min="-180" max="180" step="10"
+                    left upper leg angle -180 <input id="left_upper_leg" type="range" min="-180" max="180" step="1"
                         value="0" />
                     180
                 </div><br />
                 <div>
-                    left lower leg angle -180 <input id="left_lower_leg" type="range" min="-180" max="180" step="10"
+                    left lower leg angle -180 <input id="left_lower_leg" type="range" min="-180" max="180" step="1"
                         value="0" />
                     180
                 </div><br />
                 <div>
-                    right upper leg angle -180 <input id="right_upper_leg" type="range" min="-180" max="180" step="10"
+                    right upper leg angle -180 <input id="right_upper_leg" type="range" min="-180" max="180" step="1"
                         value="0" />
                     180
                 </div><br />
 
                 <div>
-                    right lower leg angle -180 <input id="right_lower_leg" type="range" min="-180" max="180" step="10"
+                    right lower leg angle -180 <input id="right_lower_leg" type="range" min="-180" max="180" step="1"
                         value="0" />
                     180
                 </div><br />
+
             </div>
         </div>
         <div class="controls-container">
             <div class="buttons">
                 <button id="motioncapture_start">motioncapture start</button>
                 <button id="motioncapture_stop">motioncapture stop</button>
+                <button id="reset_all" onclick="location.reload()">reset all</button>
                 <button id="motioncapture_print">motioncapture print</button>
                 <button id="motioncapture_play">motioncapture play</button>
-                <button id="reset_all" onclick="location.reload()">reset all</button>
                 <button id="walkButton">Walk</button>
                 <button id="runButton">Run</button>
                 <button id="lieDownButton">Lie Down</button>
                 <button id="eatButton">Eat</button>
                 <button id="peeButton">Pee</button>
                 <button id="stopButton">Stop</button>
-                
+            </div>
+            <div class="buttons">
+                <a href="./index.html">다시 돌아가기</a>
             </div>
         </div>
     </div>
