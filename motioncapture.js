@@ -78,7 +78,7 @@ var numAngles = 11;
 var numNodes2 = 14;
 
 //var theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-var theta = [225, 0, 0, 0, 0, 0, 5, -10, 5, -10, -90, 0, 0, 0, 0];
+var theta = [225, 0, 0, 0, 0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0];
 
 var stack = [];
 var stack2 = [];
@@ -298,7 +298,7 @@ function initNodes2(Id) {
       break;
 
     case leftLowerLegId:
-      m2 = translate(0.2, -upperLegHeight, 0.0);
+      m2 = translate(0.0, -upperLegHeight, 0.0);
       m2 = mult(m2, rotate(theta[leftLowerLegId], 0, 0, 1));
       figure2[leftLowerLegId] = createNode(m2, leftLowerLeg2, null, null);
       break;
@@ -594,7 +594,7 @@ window.onload = function init() {
     initNodes2(rightLowerArmId);
     if (isCapturing) capturedMotion.push([...theta]);
   };
-  document.getElementById("right_upper_leg").oninput = function (event) {
+  document.getElementById("left_upper_leg").oninput = function (event) {
     theta[leftUpperLegId] = event.target.value;
     initNodes2(leftUpperLegId);
     if (isCapturing) capturedMotion.push([...theta]);
@@ -622,9 +622,13 @@ window.onload = function init() {
 
   document.getElementById("walk").oninput = function (event) {
     theta[rightUpperArmId] = event.target.value;
+    theta[rightLowerArmId] = -0.5*event.target.value;
     theta[leftUpperArmId] = -event.target.value;
+    theta[leftLowerArmId] = 0.5*event.target.value;
     theta[leftUpperLegId] = event.target.value;
+    theta[leftLowerLegId] = -0.5*event.target.value;
     theta[rightUpperLegId] = -event.target.value;
+    theta[rightLowerLegId] = -0.5*event.target.value;
     torsoX2 += 0.1;
     m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
     initNodes2(head2Id);
@@ -728,12 +732,12 @@ window.onload = function init() {
 
 var render = function () {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  modelViewMatrix = translate(-3.0, -5.0, 5.0);
+  modelViewMatrix = translate(-3.0, 0.0, 5.0);
 
   for (i = 0; i < numNodes; i++) initNodes(i);
   for (i = 0; i < numNodes2; i++) initNodes2(i);
   traverse(torsoId);
-  modelViewMatrix = translate(3.0, 0, 0.0);
+  modelViewMatrix = translate(3.0, -1.0, 0.0);
   traverse2(torsoId);
   requestAnimFrame(render);
 };
