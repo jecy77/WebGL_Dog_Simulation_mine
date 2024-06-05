@@ -640,6 +640,7 @@ document.getElementById("runAwayMotionData").onclick = function() {
 }
 
 
+
 function resetLieDownVariables() {
   // 관련 변수 초기화
   accumulatedAngle = 0;
