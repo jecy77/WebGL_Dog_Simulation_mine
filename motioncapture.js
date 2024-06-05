@@ -689,7 +689,7 @@ window.onload = function init() {
   };
 
   document.getElementById("motioncapture_print").onclick = function () {
-    console.log([JSON.stringify(capturedMotion), JSON.stringify(capturedMove)]);
+    console.log([capturedMotion, capturedMove]);
   };
 
   //   document.getElementById("motioncapture_reset").oninput = function (event) {
