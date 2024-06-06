@@ -482,7 +482,7 @@ function feed() {
   instanceMatrix = mult(
     modelViewMatrix,
     // instanceMatrix = mult(modelViewMatrix, translate(-10.0, 0.0, 10.0));
-    translate(-20.0 * feedWidth, 1 * feedHeight, 16.0 * feedWidth)
+    translate(-20.0 * feedWidth, 0.5 * feedHeight, 16.0 * feedWidth)
   );
   instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
   instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0, 1));

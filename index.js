@@ -482,7 +482,7 @@ function feed() {
   instanceMatrix = mult(
     modelViewMatrix,
     // instanceMatrix = mult(modelViewMatrix, translate(-10.0, 0.0, 10.0));
-    translate(-20.0 * feedWidth, 1 * feedHeight, 16.0 * feedWidth)
+    translate(-20.0 * feedWidth, 0.5 * feedHeight, 16.0 * feedWidth)
   );
   instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
   instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0, 1));
@@ -826,8 +826,12 @@ window.onload = function init() {
     }, 10); // 간격은 밀리초 단위로 설정, 조정 가능
   }
 
-  document.getElementById("walkEatPeeRunMotionData").onclick = function () {
-    motionCapturePlay(walkEatPeeRunMotionData);
+  document.getElementById("playWithMeMotionData").onclick = function () {
+    motionCapturePlay(playWithMeMotionData);
+  };
+
+  document.getElementById("playWithMeHardMotionData").onclick = function () {
+    motionCapturePlay(playWithMeHardMotionData);
   };
 
   document.getElementById("dontEatMotionData").onclick = function () {
