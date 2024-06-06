@@ -389,16 +389,16 @@ function initNodes2(Id) {
         leftLowerLegId
       );
       break;
-    case leftUpperLegId2:
-      m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-      m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
-      figure2[leftUpperLegId2] = createNode(
-        m2,
-        leftUpperLeg2,
-        rightUpperLegId,
-        leftLowerLegId
-      );
-      break;
+    // case leftUpperLegId2:
+    //   m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+    //   m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
+    //   figure2[leftUpperLegId2] = createNode(
+    //     m2,
+    //     leftUpperLeg2,
+    //     rightUpperLegId,
+    //     leftLowerLegId
+    //   );
+    //   break;
 
     case rightUpperLegId:
       m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
