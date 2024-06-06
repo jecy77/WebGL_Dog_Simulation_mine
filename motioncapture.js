@@ -1306,6 +1306,10 @@ window.onload = function init() {
       if (isLyingDown) {
         requestAnimationFrame(lieDownMotion);
       }
+      if (isCapturing) {
+        capturedMotion.push([...theta]);
+        capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+      }
     }
   }
 

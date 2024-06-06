@@ -6,7 +6,7 @@
 
 <script id="vertex-shader" type="x-shader/x-vertex">
 
-attribute  vec4 vPosition;            // 정점 위치
+    attribute  vec4 vPosition;            // 정점 위치
 attribute  vec3 vNormal;              // 정점 노말
 varying vec4 fColor;                  // 최종 색상 (프래그먼트 셰이더로 전달됨)
 
@@ -16,6 +16,8 @@ uniform mat4 projectionMatrix;        // 투영 행렬
 uniform vec4 lightPosition;           // 조명 위치
 uniform float shininess;              // 광택도
 uniform vec4 uColor; // 색상 정보
+
+uniform float attenuation;              // 추가된 조명 변수
 
 void main()
 {
@@ -36,10 +38,10 @@ void main()
     // 조명 방정식의 항들을 계산
     vec4 ambient = ambientProduct;
 
-    float Kd = max( dot(L, N), 0.0 );
+    float Kd = max( dot(L, N), 0.0 ) * attenuation;
     vec4  diffuse = Kd * diffuseProduct;
 
-    float Ks = pow( max(dot(N, H), 0.0), shininess ); 
+    float Ks = pow( max(dot(N, H), 0.0), shininess ) * attenuation; 
     vec4  specular = Ks * specularProduct;
     
     if( dot(L, N) < 0.0 ) {
@@ -51,6 +53,7 @@ void main()
     fColor = uColor * (ambient + diffuse + specular);// 최종 색상
     fColor.a = 1.0;
 }
+
 </script>
 
 <!-- 프래그먼트 셰이더 정의 -->
