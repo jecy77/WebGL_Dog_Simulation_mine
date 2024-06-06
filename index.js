@@ -19,7 +19,7 @@ var torsoRotated = false; // 몸이 회전했는지 여부를 나타내는 플�
 var legLifted = false; // 다리가 들어올려졌는지 여부를 나타내는 플래그
 var legLowered = false; // 다리가 내려갔는지 여부를 나타내는 플래그
 
-var legDirection  = 1; // 1이면 앞으로 걷고, -1이면 뒤로 걷기
+var legDirection = 1; // 1이면 앞으로 걷고, -1이면 뒤로 걷기
 var runDirection = 7; // 각도 변화 속도를 빠르게 하기 위해 값 증가
 var headDirection = 2;
 
@@ -33,6 +33,8 @@ var torsoAngle = 0; // torso angle을 위한 변수 추가
 var legLiftAngle = 0; // 다리 각도
 var accumulatedOffset = 0; // 각도 누적 오프셋
 var torsoHeight = 0; // 모델의 위치를 낮추기 위한 변수 추가
+var shakeAngle = 0;
+var tailAngle = 0;
 
 var vertices = [
   vec4(-0.5, -0.5, 0.5, 1.0),
@@ -43,22 +45,56 @@ var vertices = [
   vec4(-0.5, 0.5, -0.5, 1.0),
   vec4(0.5, 0.5, -0.5, 1.0),
   vec4(0.5, -0.5, -0.5, 1.0),
+  vec4(-10.0, -6.0, -10.0, 1.0),
+  vec4(-10.0, -6.0, 10.0, 1.0),
+  vec4(10.0, -6.0, 10.0, 1.0),
+  vec4(10.0, -6.0, -10.0, 1.0),
+  vec4(-10.0, 10.0, -10.0, 1.0),
+  vec4(-10.0, 10.0, 10.0, 1.0),
+  vec4(10.0, 10.0, 10.0, 1.0),
+  vec4(10.0, 10.0, -10.0, 1.0),
+  vec4(0.0, 7.0, -8.0, 1.0), // Top vertex
+  vec4(-10.0, 6.0, -8.0, 1.0), // Bottom left vertex
+  vec4(10.0, 6.0, -8.0, 1.0), // Bottom right vertex
 ];
 
-var lightPosition = vec4(5.0, -5.0, 15.0, 0.0);
+var groundVertices = [
+  vec4(-10.0, -6.0, -10.0, 1.0),
+  vec4(-10.0, -6.0, 10.0, 1.0),
+  vec4(10.0, -6.0, 10.0, 1.0),
+  vec4(10.0, -6.0, -10.0, 1.0),
+  vec4(0.0, 7.0, -8.0, 1.0), // Top vertex
+  vec4(-10.0, 6.0, -8.0, 1.0), // Bottom left vertex
+  vec4(10.0, 6.0, -8.0, 1.0), // Bottom right vertex
+];
+
+var skyVertices = [
+  vec4(-10.0, 10.0, -10.0, 1.0),
+  vec4(-10.0, 10.0, 10.0, 1.0),
+  vec4(10.0, 10.0, 10.0, 1.0),
+  vec4(10.0, 10.0, -10.0, 1.0),
+];
+
+var triangleVertices = [
+  vec4(0.0, 7.0, -8.0, 1.0), // Top vertex
+  vec4(-10.0, 6.0, -8.0, 1.0), // Bottom left vertex
+  vec4(10.0, 6.0, -8.0, 1.0), // Bottom right vertex
+];
+
+var lightPosition = vec4(8.0, -10.0, 17.0, 0.0);
 var lightAmbient = vec4(0.9, 0.9, 0.9, 1.0);
 var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var lightSpecular = vec4(1.0, 1.0, 0.0, 1.0);
 
 // 골든 리트리버 색 https://encycolorpedia.kr/f1af09
-var materialAmbient = vec4(0.5, 0.5, 0.5,  1.0);
+var materialAmbient = vec4(0.5, 0.5, 0.5, 1.0);
 var materialDiffuse = vec4(0.5, 0.5, 0.5, 1.0);
 var materialSpecular = vec4(0.5, 0.5, 0.5, 1.0);
 var materialShininess = 10.0;
 
-var color1 = vec4(0.9608, 0.9608, 0.8627, 1.0); // 사료 그릇 색상 
-var color2 = vec4(0.9451, 0.6863, 0.0353, 1.0); // 강아지 색상 
-
+var color1 = vec4(0.9608, 0.9608, 0.8627, 1.0); // 사료 그릇 색상
+var color2 = vec4(0.9451, 0.6863, 0.0353, 1.0); // 강아지 색상
+var color3 = vec4(0.2165, 0.189, 0.1969, 1.0);
 
 var torsoId = 0;
 var torsoId2 = 14;
@@ -76,6 +112,7 @@ var rightLowerLegId = 9;
 var tailId = 11;
 var leftEarId = 12;
 var rightEarId = 13;
+var leftUpperLegId2 = 15;
 //var torsoId = 14;
 
 var torsoHeight = 2;
@@ -95,15 +132,21 @@ var tailWidth = 0.5;
 var earHeight = 2;
 var earWidth = 0.5;
 
-var bowlHeight = 1.6;
+var bowlHeight = 1.4;
 var bowlWidth = 3;
+var feedHeight = 0.4;
+var feedWidth = 0.4;
 
-var numNodes = 1;
+var numNodes = 6;
 var numAngles = 11;
-var numNodes2 = 14;
+var numNodes2 = 16;
 
 //var theta = [30, 170, 180, 0, 180, 0, 180, 0, 180, 0, 0];
-var theta = [225, 0, 0, 0, 0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0];
+var theta = [225, 0, 0, 0, 0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0, 0, 0];
+
+var initialHeadAngle = theta[head2Id];
+var initialTorsoAngle = theta[torsoId];
+var initialTorsoAngle2 = theta[torsoId2];
 
 var stack = [];
 var stack2 = [];
@@ -224,7 +267,32 @@ function initNodes(Id) {
   var m = mat4();
   switch (Id) {
     case torsoId:
-      figure[torsoId] = createNode(m, bowl, null, null);
+      figure[torsoId] = createNode(m, bowl, headId, null);
+      break;
+
+    case headId:
+      m = translate(-0.5 * bowlWidth, 0.5 * bowlHeight, 0.9 * bowlWidth);
+      figure[headId] = createNode(m, feed, null, leftUpperArmId);
+      break;
+
+    case leftUpperArmId:
+      m = translate(-1, 0, 1.0);
+      figure[leftUpperArmId] = createNode(m, feed, leftLowerArmId, null);
+      break;
+
+    case leftLowerArmId:
+      m = translate(-0.4, 0, 1.5);
+      figure[leftLowerArmId] = createNode(m, feed, rightUpperArmId, null);
+      break;
+
+    case rightUpperArmId:
+      m = translate(-1.2, 0, 1.0);
+      figure[rightUpperArmId] = createNode(m, feed, rightLowerArmId, null);
+      break;
+
+    case rightLowerArmId:
+      m = translate(-0.8, 0, 1.7);
+      figure[rightLowerArmId] = createNode(m, feed, null, null);
       break;
   }
 }
@@ -233,16 +301,15 @@ function initNodes2(Id) {
   var m2 = mat4();
 
   switch (Id) {
-    
     case torsoId:
     case torsoId2:
       m2 = rotate(theta[torsoId], 0, 1, 0);
       m2 = mult(m2, rotate(torsoR, 1, 0, 0));
       m2 = mult(m2, rotate(torsoR2, 0, 0, 1));
-      m2 = mult(m2, rotate(theta[torsoId2],1,0,0))
+      m2 = mult(m2, rotate(theta[torsoId2], 1, 0, 0));
       m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
       figure2[torsoId] = createNode(m2, torso2, null, headId);
-      
+
       break;
 
     case headId:
@@ -265,49 +332,57 @@ function initNodes2(Id) {
       figure2[rightEarId] = createNode(m2, rightear, null, null);
       break;
 
-      case leftUpperArmId:
-        m2 = translate(0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-        m2 = mult(m2, rotate(theta[leftUpperArmId], 0, 0, 1)); // Rotate around Z-axis
-        figure2[leftUpperArmId] = createNode(
-            m2,
-            leftUpperArm2,
-            rightUpperArmId,
-            leftLowerArmId
-        );
-        break;
+    case leftUpperArmId:
+      m2 = translate(0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[leftUpperArmId], 0, 0, 1)); // Rotate around Z-axis
+      figure2[leftUpperArmId] = createNode(
+        m2,
+        leftUpperArm2,
+        rightUpperArmId,
+        leftLowerArmId
+      );
+      break;
 
     case rightUpperArmId:
-        m2 = translate(0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
-        m2 = mult(m2, rotate(theta[rightUpperArmId], 0, 0, 1)); // Rotate around Z-axis
-        figure2[rightUpperArmId] = createNode(
-            m2,
-            rightUpperArm2,
-            leftUpperLegId,
-            rightLowerArmId
-        );
-        break;
+      m2 = translate(0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[rightUpperArmId], 0, 0, 1)); // Rotate around Z-axis
+      figure2[rightUpperArmId] = createNode(
+        m2,
+        rightUpperArm2,
+        leftUpperLegId,
+        rightLowerArmId
+      );
+      break;
 
     case leftUpperLegId:
-        m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-        m2 = mult(m2, rotate(theta[leftUpperLegId], 0, 0, 1)); // Rotate around Z-axis
-        figure2[leftUpperLegId] = createNode(
-            m2,
-            leftUpperLeg2,
-            rightUpperLegId,
-            leftLowerLegId
-        );
-        break;
+    // case leftUpperLegId2:
+      m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[leftUpperLegId], 0, 0, 1)); // Z축 회전
+      // m2 = mult(m2, rotate(theta[leftUpperLegId2], 1, 0, 0)); // Y축 회전
+      figure2[leftUpperLegId] = createNode(
+        m2,
+        leftUpperLeg2,
+        rightUpperLegId,
+        leftLowerLegId
+      );
+      break;
+
+    case leftUpperLegId2: // 뒷다리 사라지는 현상 발생해서 다시 추가했습니다.
+      m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
+      figure2[leftUpperLegId2] = createNode(m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId);
+      break;
 
     case rightUpperLegId:
-        m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
-        m2 = mult(m2, rotate(theta[rightUpperLegId], 0, 0, 1)); // Rotate around Z-axis
-        figure2[rightUpperLegId] = createNode(
-            m2,
-            rightUpperLeg2,
-            tailId,
-            rightLowerLegId
-        );
-        break;
+      m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[rightUpperLegId], 0, 0, 1)); // Rotate around Z-axis
+      figure2[rightUpperLegId] = createNode(
+        m2,
+        rightUpperLeg2,
+        tailId,
+        rightLowerLegId
+      );
+      break;
 
     case leftLowerArmId:
       m2 = translate(0.0, -upperArmHeight, 0.0);
@@ -363,14 +438,33 @@ function traverse2(Id) {
 }
 
 function bowl() {
-	instanceMatrix = mult(modelViewMatrix, translate(-2.0, 0.0, 2.0) );
-	instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1,0));
-	instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0,1));
-    instanceMatrix = mult(instanceMatrix, scale4( bowlWidth, bowlHeight, bowlWidth));
-	
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color1));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(modelViewMatrix, translate(-2.0, 0.0, 2.0));
+  instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
+  instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0, 1));
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(bowlWidth, bowlHeight, bowlWidth)
+  );
+
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color1));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
+}
+
+function feed() {
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * feedWidth, 0.5 * feedHeight, 0.5 * feedWidth)
+  );
+  instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
+  instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0, 1));
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(feedWidth, feedHeight, feedWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color3));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function torso2() {
@@ -383,120 +477,199 @@ function torso2() {
     scale4(torsoWidth, torsoHeight, torsoWidth)
   );
 
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5*torsoHeight, 0.0) );
-    instanceMatrix = mult(instanceMatrix, scale4( torsoWidth, torsoHeight, torsoWidth));
-	
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * torsoHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(torsoWidth, torsoHeight, torsoWidth)
+  );
+
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function head2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * headWidth, 0.5 * headHeight, 0.0 ));
-	instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, 1.5*headWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2)); 
-	for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * headWidth, 0.5 * headHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(headWidth, headHeight, 1.5 * headWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftUpperArm2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, 0.5 * upperArmWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2)); 
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, 0.5 * upperArmWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperArmWidth, upperArmHeight, upperArmWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerArm2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, 0.5 * lowerArmWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, 0.5 * lowerArmWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperArm2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, -0.5 * upperArmWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(-0.5 * upperArmWidth, -0.5 * upperArmHeight, -0.5 * upperArmWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperArmWidth, upperArmHeight, upperArmWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerArm2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, -0.5 * lowerArmWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(-0.5 * lowerArmWidth, -0.5 * lowerArmHeight, -0.5 * lowerArmWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
-function  leftUpperLeg2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, 0.5 * upperLegWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight+0.2, upperLegWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+function leftUpperLeg2() {
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, 0.5 * upperLegWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperLegWidth, upperLegHeight + 0.2, upperLegWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerLeg2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate( 0.5 * lowerLegWidth, -0.5 * lowerLegHeight, 0.5 * lowerLegWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * lowerLegWidth, -0.5 * lowerLegHeight, 0.5 * lowerLegWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperLeg2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, -0.5 * upperLegWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight+0.2, upperLegWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * upperLegWidth, -0.5 * upperLegHeight, -0.5 * upperLegWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperLegWidth, upperLegHeight + 0.2, upperLegWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerLeg2() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * lowerLegWidth, -0.5 * lowerLegHeight, -0.5 * lowerLegWidth) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * lowerLegWidth, -0.5 * lowerLegHeight, -0.5 * lowerLegWidth)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function tail() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.5 * tailWidth, 0.8 * tailHeight, 0.0) );
-	instanceMatrix = mult(instanceMatrix, scale4(tailWidth, tailHeight, tailWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.5 * tailWidth, 0.8 * tailHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(tailWidth, tailHeight, tailWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftear() {
-	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0) );
-	instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
-
+  instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0));
+  instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightear() {
-	instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0) );
-	instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-	gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+  instanceMatrix = mult(modelViewMatrix, translate(-0.5 * earWidth, 0, 0.0));
+  instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color2));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
+}
 
+function drawGround() {
+  instanceMatrix = mat4();
+  instanceMatrix = mult(instanceMatrix, translate(0.0, -5.5, -8.0)); // Y 위치 조정
+  instanceMatrix = mult(instanceMatrix, scale4(20.0, 12, 0.1)); // 크기 조정
+
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(
+    gl.getUniformLocation(program, "uColor"),
+    flatten(vec4(0.4157, 0.5216, 0.0941, 1.0))
+  ); // 땅의 색상 (초록색)
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // 단일 평면 그리기
+}
+
+function drawSky() {
+  instanceMatrix = mat4();
+  instanceMatrix = mult(instanceMatrix, translate(0.0, 0.0, -9.0)); // 위치 조정
+  instanceMatrix = mult(instanceMatrix, scale4(20.0, 20.0, 0.1)); // 크기 조정
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(
+    gl.getUniformLocation(program, "uColor"),
+    flatten(vec4(0.698, 0.7686, 0.9314, 0.8))
+  ); // 하늘의 색상 (파란색)
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // 단일 평면 그리기
 }
 
 function quad(a, b, c, d) {
@@ -582,71 +755,69 @@ window.onload = function init() {
   var diffuseProduct = mult(lightDiffuse, materialDiffuse);
   var specularProduct = mult(lightSpecular, materialSpecular);
 
-function motionCapturePlay(motionCaptureData) {
-	console.log("Playing captured motion");
-	capturedMotion = motionCaptureData[0];
-	capturedMove = motionCaptureData[1];
+  function motionCapturePlay(motionCaptureData) {
+    console.log("Playing captured motion");
+    capturedMotion = motionCaptureData[0];
+    capturedMove = motionCaptureData[1];
 
     let index = 0;
     const interval = setInterval(() => {
-        if (index < capturedMove.length) {
-            // 현재 인덱스에 해당하는 위치 데이터를 가져와 모델 뷰 행렬을 업데이트
-            torsoX2 = capturedMove[index][0];
-            torsoY2 = capturedMove[index][1];
-            torsoZ2 = capturedMove[index][2];
+      if (index < capturedMove.length) {
+        // 현재 인덱스에 해당하는 위치 데이터를 가져와 모델 뷰 행렬을 업데이트
+        torsoX2 = capturedMove[index][0];
+        torsoY2 = capturedMove[index][1];
+        torsoZ2 = capturedMove[index][2];
 
-			theta = capturedMotion[index];
+        theta = capturedMotion[index];
 
-            // 모델 뷰 행렬 업데이트 함수 실행
-            m2 = mat4();
-            m2 = translate(torsoX2, torsoY2, torsoZ2);
-            m2 = mult(m2, rotate(theta[torsoId], 0, 1, 0)); // 회전을 적용하고 싶다면 여기에 추가
-            modelViewMatrix = m2;
+        // 모델 뷰 행렬 업데이트 함수 실행
+        m2 = mat4();
+        m2 = translate(torsoX2, torsoY2, torsoZ2);
+        m2 = mult(m2, rotate(theta[torsoId], 0, 1, 0)); // 회전을 적용하고 싶다면 여기에 추가
+        modelViewMatrix = m2;
 
-            // 모든 노드를 초기화하여 새로운 위치를 반영
-            for (let i = 0; i < numNodes; i++) {
-                initNodes(i);
-            }
-            index++;
-        } else {
-            // 배열의 끝에 도달하면 인터벌 중지
-            clearInterval(interval);
+        // 모든 노드를 초기화하여 새로운 위치를 반영
+        for (let i = 0; i < numNodes; i++) {
+          initNodes(i);
         }
+        index++;
+      } else {
+        // 배열의 끝에 도달하면 인터벌 중지
+        clearInterval(interval);
+      }
     }, 10); // 간격은 밀리초 단위로 설정, 조정 가능
-};
+  }
 
-document.getElementById("walkEatPeeRunMotionData").onclick = function() {
-	motionCapturePlay(walkEatPeeRunMotionData);
-};
+  document.getElementById("walkEatPeeRunMotionData").onclick = function () {
+    motionCapturePlay(walkEatPeeRunMotionData);
+  };
 
-document.getElementById("dontEatMotionData").onclick = function() {
-	motionCapturePlay(dontEatMotionData);
-}
+  document.getElementById("dontEatMotionData").onclick = function () {
+    motionCapturePlay(dontEatMotionData);
+  };
 
-document.getElementById("eatMotionData").onclick = function() {
-	motionCapturePlay(eatMotionData);
-}
+  document.getElementById("eatMotionData").onclick = function () {
+    motionCapturePlay(eatMotionData);
+  };
 
-document.getElementById("peeMotionData").onclick = function() {
-	motionCapturePlay(peeMotionData);
-}
+  document.getElementById("peeMotionData").onclick = function () {
+    motionCapturePlay(peeMotionData);
+  };
 
-document.getElementById("walkAwayMotionData").onclick = function() {
-	motionCapturePlay(walkAwayMotionData);
-}
+  document.getElementById("walkAwayMotionData").onclick = function () {
+    motionCapturePlay(walkAwayMotionData);
+  };
 
-document.getElementById("runAwayMotionData").onclick = function() {
-	motionCapturePlay(runAwayMotionData);
-}
+  document.getElementById("runAwayMotionData").onclick = function () {
+    motionCapturePlay(runAwayMotionData);
+  };
 
-
-
-function resetLieDownVariables() {
-  // 관련 변수 초기화
-  accumulatedAngle = 0;
-  torsoHeight = 0;
-  legLiftDirection = 1;
-}
+  function resetLieDownVariables() {
+    // 관련 변수 초기화
+    accumulatedAngle = 0;
+    torsoHeight = 0;
+    legLiftDirection = 1;
+  }
 
   gl.uniform4fv(
     gl.getUniformLocation(program, "ambientProduct"),
@@ -675,6 +846,12 @@ function resetLieDownVariables() {
 var render = function () {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   modelViewMatrix = translate(-3.0, -1.2, 5.0);
+
+  // Draw the ground
+  drawGround();
+
+  // Draw the sky
+  drawSky();
 
   for (i = 0; i < numNodes; i++) initNodes(i);
   for (i = 0; i < numNodes2; i++) initNodes2(i);
