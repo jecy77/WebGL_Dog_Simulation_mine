@@ -89,7 +89,7 @@ var triangleVertices = [
   vec4(10.0, 6.0, -8.0, 1.0), // Bottom right vertex
 ];
 
-var lightPosition = vec4(25.0, 15.0, 22.0, 0.0);
+var lightPosition = vec4(12.0, 7.0, 23.0, 0.0);
 var lightAmbient = vec4(2.0, 2.0, 2.0, 1.0);
 var lightDiffuse = vec4(1.3, 1.3, 1.3, 1.0);
 var lightSpecular = vec4(1.3, 1.3, 0.3, 1.0);
@@ -378,10 +378,10 @@ function initNodes2(Id) {
       break;
 
     case leftUpperLegId:
-      // case leftUpperLegId2:
+      case leftUpperLegId2:
       m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
       m2 = mult(m2, rotate(theta[leftUpperLegId], 0, 0, 1)); // Z축 회전
-      // m2 = mult(m2, rotate(theta[leftUpperLegId2], 1, 0, 0)); // Y축 회전
+      m2 = mult(m2, rotate(theta[leftUpperLegId2], 1, 0, 0)); // Y축 회전
       figure2[leftUpperLegId] = createNode(
         m2,
         leftUpperLeg2,
@@ -1067,7 +1067,7 @@ window.onload = function init() {
     isWaggingTail = false; // 모든 애니메이션 플래그를 초기화
 
     // 다리 각도 초기화
-    theta[head1Id] = 0;
+    //theta[head1Id] = 0;
     theta[rightUpperArmId] = 0;
     theta[rightUpperLegId] = 0;
     theta[leftUpperArmId] = 0;
@@ -1077,9 +1077,9 @@ window.onload = function init() {
     theta[leftLowerArmId] = 0;
     theta[leftLowerLegId] = 0;
 
-    theta[torsoId2] = 0;
-    theta[tailId] = 0;
-    theta[leftUpperLegId2] = 0;
+    //theta[torsoId2] = 0;
+    //theta[tailId] = 0;
+    //theta[leftUpperLegId2] = 0;
     for (var i = 0; i < numNodes2; i++) initNodes2(i);
   };
 
@@ -1203,8 +1203,8 @@ window.onload = function init() {
       // torso angle을 천천히 변경
       if (!torsoRotated) {
         torsoAngle += 1;
-        if (torsoAngle >= 30) {
-          torsoAngle = 30;
+        if (torsoAngle >= 50) {
+          torsoAngle = 50;
           torsoRotated = true; // 몸이 회전했음을 표시
         }
       } else if (!legLifted) {
