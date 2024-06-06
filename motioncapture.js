@@ -9,9 +9,9 @@ var modelViewMatrix;
 var instanceMatrix;
 var modelViewMatrixLoc;
 
-var eye = vec3(0, 7, 34); // 카메라를 z축을 따라 뒤로 이동
-var at = vec3(-5, 0, 0); // 카메라가 원점을 바라보도록 설정
-var up = vec3(0, 1, 0); // 상방향을 y축으로 설정
+var eye = vec3(0, 7, 34);
+var at = vec3(-5, 0, 0);
+var up = vec3(0, 1, 0);
 
 var isWalking = false;
 var isRunning = false;
