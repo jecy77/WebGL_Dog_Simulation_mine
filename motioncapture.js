@@ -9,7 +9,9 @@ var modelViewMatrix;
 var instanceMatrix;
 var modelViewMatrixLoc;
 
-
+var eye = vec3(0, 7, 34); // 카메라를 z축을 따라 뒤로 이동
+var at = vec3(-5, 0, 0); // 카메라가 원점을 바라보도록 설정
+var up = vec3(0, 1, 0); // 상방향을 y축으로 설정
 
 var isWalking = false;
 var isRunning = false;
@@ -30,7 +32,7 @@ var headDirection = 2;
 var shakeDirection = 1;
 var tailDirection = 1;
 
-var accumulatedAngle   = 0; // 누적 각도
+var accumulatedAngle = 0; // 누적 각도
 var legPhase = 0; // 현재 다리의 단계
 var legLiftDirection = 1; // 다리 각도 변화 방향
 
@@ -39,7 +41,6 @@ var runCycle = 0; // 주기적으로 앞뒤로 움직이는 것을 제어하는 
 var torsoAngle = 0; // torso angle을 위한 변수 추가
 var legLiftAngle = 0; // 다리 각도
 var accumulatedOffset = 0; // 각도 누적 오프셋
-var torsoHeight = 0; // 모델의 위치를 낮추기 위한 변수 추가
 var shakeAngle = 0;
 var tailAngle = 0;
 
@@ -60,9 +61,9 @@ var vertices = [
   vec4(-10.0, 10.0, 10.0, 1.0),
   vec4(10.0, 10.0, 10.0, 1.0),
   vec4(10.0, 10.0, -10.0, 1.0),
-  vec4(0.0, 7.0, -8.0, 1.0),  // Top vertex
+  vec4(0.0, 7.0, -8.0, 1.0), // Top vertex
   vec4(-10.0, 6.0, -8.0, 1.0), // Bottom left vertex
-  vec4(10.0, 6.0, -8.0, 1.0)  // Bottom right vertex
+  vec4(10.0, 6.0, -8.0, 1.0), // Bottom right vertex
 ];
 
 var groundVertices = [
@@ -70,28 +71,32 @@ var groundVertices = [
   vec4(-10.0, -6.0, 10.0, 1.0),
   vec4(10.0, -6.0, 10.0, 1.0),
   vec4(10.0, -6.0, -10.0, 1.0),
-  vec4(0.0, 7.0, -8.0, 1.0),  // Top vertex
+  vec4(0.0, 7.0, -8.0, 1.0), // Top vertex
   vec4(-10.0, 6.0, -8.0, 1.0), // Bottom left vertex
-  vec4(10.0, 6.0, -8.0, 1.0)  // Bottom right vertex
+  vec4(10.0, 6.0, -8.0, 1.0), // Bottom right vertex
 ];
 
 var skyVertices = [
   vec4(-10.0, 10.0, -10.0, 1.0),
   vec4(-10.0, 10.0, 10.0, 1.0),
   vec4(10.0, 10.0, 10.0, 1.0),
-  vec4(10.0, 10.0, -10.0, 1.0)
+  vec4(10.0, 10.0, -10.0, 1.0),
 ];
 
 var triangleVertices = [
-  vec4(0.0, 7.0, -8.0, 1.0),  // Top vertex
+  vec4(0.0, 7.0, -8.0, 1.0), // Top vertex
   vec4(-10.0, 6.0, -8.0, 1.0), // Bottom left vertex
-  vec4(10.0, 6.0, -8.0, 1.0)  // Bottom right vertex
+  vec4(10.0, 6.0, -8.0, 1.0), // Bottom right vertex
 ];
 
-var lightPosition = vec4(8.0, -10.0, 17.0, 0.0);
-var lightAmbient = vec4(0.9, 0.9, 0.9, 1.0);
-var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-var lightSpecular = vec4(1.0, 1.0, 0.0, 1.0);
+var lightPosition = vec4(25.0, 15.0, 22.0, 0.0);
+var lightAmbient = vec4(2.0, 2.0, 2.0, 1.0);
+var lightDiffuse = vec4(1.3, 1.3, 1.3, 1.0);
+var lightSpecular = vec4(1.3, 1.3, 0.3, 1.0);
+
+var constantAttenuation = 1.0;
+var linearAttenuation = 0.01;
+var quadraticAttenuation = 0.001;
 
 // 골든 리트리버 색 https://encycolorpedia.kr/f1af09
 var materialAmbient = vec4(0.5, 0.5, 0.5, 1.0);
@@ -101,7 +106,7 @@ var materialShininess = 10.0;
 
 var color1 = vec4(0.9608, 0.9608, 0.8627, 1.0); // 사료 그릇 색상
 var color2 = vec4(0.9451, 0.6863, 0.0353, 1.0); // 강아지 색상
-var color3 = vec4(0.2165, 0.1890, 0.1969, 1.0);
+var color3 = vec4(0.2165, 0.189, 0.1969, 1.0);
 
 var torsoId = 0;
 var torsoId2 = 14;
@@ -258,6 +263,13 @@ function scale4(a, b, c) {
   result[2][2] = c;
   return result;
 }
+
+function calculateDistance(x1, y1, z1, x2, y2, z2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const dz = z2 - z1;
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
 //--------------------------------------------
 
 function createNode(transform, render, sibling, child) {
@@ -282,28 +294,28 @@ function initNodes(Id) {
       break;
 
     case headId:
-      m = translate(-0.5*bowlWidth,  0.5*bowlHeight, 0.9*bowlWidth);
-      figure [headId] = createNode(m, feed, null, leftUpperArmId )
+      m = translate(-0.5 * bowlWidth, 0.5 * bowlHeight, 0.9 * bowlWidth);
+      figure [headId] = createNode(m, feed, null, leftUpperArmId);
       break;
 
     case leftUpperArmId:
       m = translate(-1, 0, 1.0);
-      figure [leftUpperArmId] = createNode(m, feed, leftLowerArmId, null )
+      figure[leftUpperArmId] = createNode(m, feed, leftLowerArmId, null);
       break;
 
     case leftLowerArmId:
       m = translate(-0.4, 0, 1.5);
-      figure [leftLowerArmId] = createNode(m, feed, rightUpperArmId, null )
+      figure[leftLowerArmId] = createNode(m, feed, rightUpperArmId, null);
       break;
 
     case rightUpperArmId:
       m = translate(-1.2, 0, 1.0);
-      figure [rightUpperArmId] = createNode(m, feed, rightLowerArmId, null )
+      figure[rightUpperArmId] = createNode(m, feed, rightLowerArmId, null);
       break;
 
     case rightLowerArmId:
       m = translate(-0.8, 0, 1.7);
-      figure [rightLowerArmId] = createNode(m, feed, null, null )
+      figure[rightLowerArmId] = createNode(m, feed, null, null);
       break;
   }
 }
@@ -314,7 +326,6 @@ function initNodes2(Id) {
   switch (Id) {
     case torsoId:
     case torsoId2:
-     
       m2 = rotate(theta[torsoId], 0, 1, 0);
       m2 = mult(m2, rotate(torsoR, 1, 0, 0));
       m2 = mult(m2, rotate(torsoR2, 0, 0, 1));
@@ -366,18 +377,28 @@ function initNodes2(Id) {
       );
       break;
 
-      case leftUpperLegId:
-      case leftUpperLegId2:
-          m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-          m2 = mult(m2, rotate(theta[leftUpperLegId], 0, 0, 1)); // Z축 회전
-          m2 = mult(m2, rotate(theta[leftUpperLegId2], 1, 0, 0)); // Y축 회전
-          figure2[leftUpperLegId] = createNode(m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId);
-          break;
-        // case leftUpperLegId2:
-        //   m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-        //   m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
-        //   figure2[leftUpperLegId2] = createNode(m2, leftUpperLeg2, rightUpperLegId, leftLowerLegId);
-        //   break;
+    case leftUpperLegId:
+      // case leftUpperLegId2:
+      m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[leftUpperLegId], 0, 0, 1)); // Z축 회전
+      // m2 = mult(m2, rotate(theta[leftUpperLegId2], 1, 0, 0)); // Y축 회전
+      figure2[leftUpperLegId] = createNode(
+        m2,
+        leftUpperLeg2,
+        rightUpperLegId,
+        leftLowerLegId
+      );
+      break;
+    case leftUpperLegId2:
+      m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
+      m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
+      figure2[leftUpperLegId2] = createNode(
+        m2,
+        leftUpperLeg2,
+        rightUpperLegId,
+        leftLowerLegId
+      );
+      break;
 
     case rightUpperLegId:
       m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
@@ -444,7 +465,7 @@ function traverse2(Id) {
 }
 
 function bowl() {
-  instanceMatrix = mult(modelViewMatrix, translate(-2.0, 0.0, 2.0));
+  instanceMatrix = mult(modelViewMatrix, translate(-10.0, 0.0, 10.0));
   instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
   instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0, 1));
   instanceMatrix = mult(
@@ -460,7 +481,8 @@ function bowl() {
 function feed() {
   instanceMatrix = mult(
     modelViewMatrix,
-    translate(0.5 * feedWidth, 0.5 * feedHeight, 0.5 * feedWidth)
+    // instanceMatrix = mult(modelViewMatrix, translate(-10.0, 0.0, 10.0));
+    translate(-20.0 * feedWidth, 0.5 * feedHeight, 16.0 * feedWidth)
   );
   instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
   instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0, 1));
@@ -472,7 +494,6 @@ function feed() {
   gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(color3));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
-
 
 function torso2() {
   instanceMatrix = mult(
@@ -654,6 +675,31 @@ function rightear() {
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
+function drawGround() {
+  instanceMatrix = mat4();
+  instanceMatrix = mult(instanceMatrix, translate(0.0, -3000.5, -100.0)); // Y 위치 조정
+  instanceMatrix = mult(instanceMatrix, scale4(20000.0, 6000, 1.0)); // 크기 조정
+
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(
+    gl.getUniformLocation(program, "uColor"),
+    flatten(vec4(0.4157, 0.5216, 0.0941, 1.0))
+  ); // 땅의 색상 (초록색)
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // 단일 평면 그리기
+}
+
+function drawSky() {
+  instanceMatrix = mat4();
+  instanceMatrix = mult(instanceMatrix, translate(0.0, 600.0, -150.0)); // 위치 조정
+  instanceMatrix = mult(instanceMatrix, scale4(20000.0, 6000.0, 1.0)); // 크기 조정
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  gl.uniform4fv(
+    gl.getUniformLocation(program, "uColor"),
+    flatten(vec4(0.698, 0.7686, 0.9314, 0.8))
+  ); // 하늘의 색상 (파란색)
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // 단일 평면 그리기
+}
+
 function quad(a, b, c, d) {
   var t1 = subtract(vertices[b], vertices[a]);
   var t2 = subtract(vertices[c], vertices[b]);
@@ -703,15 +749,24 @@ window.onload = function init() {
 
   instanceMatrix = mat4();
 
-  projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
-  //    modelViewMatrix = mat4();
+  // Setup the perspective projection
+  var fov = 45; // degrees
+  var aspect = canvas.width / canvas.height; // aspect ratio
+  var near = 0.1; // near clipping plane
+  var far = 200.0; // far clipping plane  단위
 
-  //    gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
+  projectionMatrix = perspective(fov, aspect, near, far);
+  // projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
+  // modelViewMatrix = mat4();
+
+  // gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
   gl.uniformMatrix4fv(
     gl.getUniformLocation(program, "projectionMatrix"),
     false,
     flatten(projectionMatrix)
   );
+
+  modelViewMatrix = lookAt(eye, at, up);
 
   modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
 
@@ -835,7 +890,6 @@ window.onload = function init() {
     }
   };
 
-
   document.getElementById("head2").oninput = function (event) {
     theta[head2Id] = event.target.value;
     initNodes2(head2Id);
@@ -854,46 +908,12 @@ window.onload = function init() {
     }
   };
 
-
-  // document.getElementById("walk").oninput = function (event) {
-  //   theta[rightUpperArmId] = event.target.value;
-  //   theta[rightLowerArmId] = -0.5 * event.target.value;
-  //   theta[leftUpperArmId] = -event.target.value;
-  //   theta[leftLowerArmId] = 0.5 * event.target.value;
-  //   theta[leftUpperLegId] = event.target.value;
-  //   theta[leftLowerLegId] = -0.5 * event.target.value;
-  //   theta[rightUpperLegId] = -event.target.value;
-  //   theta[rightLowerLegId] = -0.5 * event.target.value;
-  //   torsoX2 += 0.1;
-  //   m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
-  //   initNodes2(head2Id);
-  //   if (isCapturing) {
-  //     capturedMotion.push([...theta]);
-  //     capturedMove.push([torsoX2, torsoY2, torsoZ2]);
-  //   }
-  // };
-
-  // document.getElementById("run").oninput = function (event) {
-  //   theta[rightUpperArmId] = event.target.value;
-  //   theta[leftUpperArmId] = event.target.value;
-  //   theta[leftUpperLegId] = -event.target.value;
-  //   theta[rightUpperLegId] = -event.target.value;
-  //   torsoX2 += 0.15;
-  //   m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
-  //   initNodes2(head2Id);
-  //   if (isCapturing) {
-  //     capturedMotion.push([...theta]);
-  //     capturedMove.push([torsoX2, torsoY2, torsoZ2]);
-  //   }
-  // };
-
   document.getElementById("delayDummy").oninput = function (event) {
     if (isCapturing) {
       capturedMotion.push([...theta]);
       capturedMove.push([torsoX2, torsoY2, torsoZ2]);
     }
   };
-  
 
   document.getElementById("motioncapture_start").onclick = function () {
     isCapturing = true;
@@ -908,12 +928,6 @@ window.onload = function init() {
   document.getElementById("motioncapture_print").onclick = function () {
     console.log([capturedMotion, capturedMove]);
   };
-
-  //   document.getElementById("motioncapture_reset").oninput = function (event) {
-  //     capturedMotion = [];
-  // 	capturedMove = [];
-  //     console.log("Resetting captured motion");
-  //   };
 
   document.getElementById("motioncapture_play").onclick = function () {
     console.log("Playing captured motion");
@@ -930,14 +944,14 @@ window.onload = function init() {
         theta = capturedMotion[index];
 
         // 모델 뷰 행렬 업데이트 함수 실행
-        m2 = mat4();
+        m2 = modelViewMatrix = lookAt(eye, at, up);
         m2 = translate(torsoX2, torsoY2, torsoZ2);
         m2 = mult(m2, rotate(theta[torsoId], 0, 1, 0)); // 회전을 적용하고 싶다면 여기에 추가
         modelViewMatrix = m2;
 
         // 모든 노드를 초기화하여 새로운 위치를 반영
         for (let i = 0; i < numNodes; i++) {
-          initNodes(i);
+          initNodes2(i);
         }
 
         index++;
@@ -1017,7 +1031,7 @@ window.onload = function init() {
     lieDownMotion();
   };
 
-  document.getElementById("shakeButton").onclick = function() {
+  document.getElementById("shakeButton").onclick = function () {
     isRunning = false;
     isWalking = false;
     isEating = false;
@@ -1031,7 +1045,7 @@ window.onload = function init() {
     shakeMotion();
   };
 
-  document.getElementById("wagTailButton").onclick = function() {
+  document.getElementById("wagTailButton").onclick = function () {
     isRunning = false;
     isWalking = false;
     isEating = false;
@@ -1041,7 +1055,7 @@ window.onload = function init() {
     tailAngle = 0; // 초기화
     tailDirection = 1; // 초기화
     wagTailMotion();
-};
+  };
 
   document.getElementById("stopButton").onclick = function () {
     isRunning = false;
@@ -1062,7 +1076,7 @@ window.onload = function init() {
     theta[rightLowerLegId] = 0;
     theta[leftLowerArmId] = 0;
     theta[leftLowerLegId] = 0;
-    
+
     theta[torsoId2] = 0;
     theta[tailId] = 0;
     theta[leftUpperLegId2] = 0;
@@ -1116,11 +1130,10 @@ window.onload = function init() {
       if (isCapturing) {
         capturedMotion.push([...theta]);
         capturedMove.push([torsoX2, torsoY2, torsoZ2]);
-
       }
     }
   }
-  
+
   function runMotion() {
     if (isRunning) {
       // 누적 각도 업데이트
@@ -1200,7 +1213,7 @@ window.onload = function init() {
         if (legLiftAngle >= 45) {
           legLiftAngle = 45;
           legLifted = true; // 다리가 들어올려졌음을 표시
-  
+
           // 다리를 일정 시간 후에 내리기 위해 타이머 설정
           setTimeout(function () {
             legLiftDirection = -1; // 다리 내리는 방향으로 변경
@@ -1215,19 +1228,19 @@ window.onload = function init() {
           legLiftAngle = 0;
           legLowered = false; // 다리 내리기 완료
           isPeeing = false; // 동작 완료
-  
+
           // 원위치로 돌아가기 위해 변수를 초기화
           resetPeeMotion();
           return;
         }
       }
-  
+
       theta[torsoId] = torsoAngle;
       theta[torsoId2] = 0.8 * torsoAngle;
       theta[leftUpperLegId2] = legLiftAngle; // 왼쪽 다리 들어올림
-  
+
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
-  
+
       if (isPeeing) {
         requestAnimationFrame(PeeMotion);
       }
@@ -1237,7 +1250,7 @@ window.onload = function init() {
       }
     }
   }
-  
+
   function resetPeeMotion() {
     // 모든 관련 변수를 초기화하고 원위치로 돌아감
     torsoAngle = 0;
@@ -1246,27 +1259,27 @@ window.onload = function init() {
     legLifted = false;
     legLowered = false;
     legLiftDirection = 1;
-    
+
     theta[torsoId2] = 0;
     theta[leftUpperLegId2] = 0;
-  
+
     // 애니메이션 초기화
     for (var i = 0; i < numNodes2; i++) initNodes2(i);
   }
 
-function lieDownMotion() {
-  if (isLyingDown) {
+  function lieDownMotion() {
+    if (isLyingDown) {
       // 다리 각도를 천천히 변경
-      accumulatedAngle += legLiftDirection*4;
+      accumulatedAngle += legLiftDirection * 4;
       if (accumulatedAngle >= 90) {
-          accumulatedAngle = 90;
-          legLiftDirection = 0; // 각도 변화 멈춤
+        accumulatedAngle = 90;
+        legLiftDirection = 0; // 각도 변화 멈춤
       } else if (accumulatedAngle <= 0) {
-          accumulatedAngle = 0;
-          legLiftDirection = 1;
-          isLyingDown = false;
-          // 동작 완료 후 변수 초기화
-          resetLieDownVariables();
+        accumulatedAngle = 0;
+        legLiftDirection = 1;
+        isLyingDown = false;
+        // 동작 완료 후 변수 초기화
+        resetLieDownVariables();
       }
 
       theta[rightUpperArmId] = accumulatedAngle;
@@ -1276,10 +1289,11 @@ function lieDownMotion() {
 
       // 모델의 위치를 천천히 낮춤
       if (accumulatedAngle < 90) {
-          torsoY2 -= 0.02;
-          if (torsoY2 <= -0.5) { // 너무 낮지 않도록 조정
-              torsoY2 = -0.5;
-          }
+        torsoY2 -= 0.02;
+        if (torsoY2 <= -0.5) {
+          // 너무 낮지 않도록 조정
+          torsoY2 = -0.5;
+        }
       }
 
       // 모델의 위치를 업데이트
@@ -1290,45 +1304,51 @@ function lieDownMotion() {
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
       if (isLyingDown) {
-          requestAnimationFrame(lieDownMotion);
+        requestAnimationFrame(lieDownMotion);
       }
-  }
-}
-
-function resetLieDownVariables() {
-  // 관련 변수 초기화
-  accumulatedAngle = 0;
-  torsoY2 = 0;
-  legLiftDirection = 1;
-}
-
-
-
-function shakeMotion() {
-  if (isShaking) {
-    // 회전 각도 업데이트
-    shakeAngle += shakeDirection * 5;
-    if (shakeAngle >= 10 || shakeAngle <= -10) {
-      shakeDirection *= -1; // 방향 전환
+      if (isCapturing) {
+        capturedMotion.push([...theta]);
+        capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+      }
     }
-
-    // 머리와 몸 회전 방향을 반대로 설정
-    theta[head2Id] = initialHeadAngle + shakeAngle;
-    theta[torsoId] = initialTorsoAngle - shakeAngle;
-    theta[torsoId2] = initialTorsoAngle2 + 0.5*shakeAngle;
-
-    for (var i = 0; i < numNodes2; i++) initNodes2(i);
-
-    requestAnimationFrame(shakeMotion);
   }
-}
 
-function wagTailMotion() {
-  if (isWaggingTail) {
+  function resetLieDownVariables() {
+    // 관련 변수 초기화
+    accumulatedAngle = 0;
+    torsoY2 = 0;
+    legLiftDirection = 1;
+  }
+
+  function shakeMotion() {
+    if (isShaking) {
+      // 회전 각도 업데이트
+      shakeAngle += shakeDirection * 5;
+      if (shakeAngle >= 10 || shakeAngle <= -10) {
+        shakeDirection *= -1; // 방향 전환
+      }
+
+      // 머리와 몸 회전 방향을 반대로 설정
+      theta[head2Id] = initialHeadAngle + shakeAngle;
+      theta[torsoId] = initialTorsoAngle - shakeAngle;
+      theta[torsoId2] = initialTorsoAngle2 + 0.5 * shakeAngle;
+
+      for (var i = 0; i < numNodes2; i++) initNodes2(i);
+
+      requestAnimationFrame(shakeMotion);
+    }
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
+  }
+
+  function wagTailMotion() {
+    if (isWaggingTail) {
       // 꼬리 각도 업데이트
       tailAngle += tailDirection * 5;
       if (tailAngle >= 30 || tailAngle <= -30) {
-          tailDirection *= -1; // 방향 전환
+        tailDirection *= -1; // 방향 전환
       }
 
       // 꼬리 회전 설정
@@ -1337,10 +1357,8 @@ function wagTailMotion() {
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
       requestAnimationFrame(wagTailMotion);
+    }
   }
-}
-
-
 
   gl.uniform4fv(
     gl.getUniformLocation(program, "ambientProduct"),
@@ -1360,54 +1378,51 @@ function wagTailMotion() {
   );
 
   gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
+  
+  var constantAttenuation = 1.0;
+  var linearAttenuation = 0.01;
+  var quadraticAttenuation = 0.001;
+
+  var d = calculateDistance(
+    lightPosition[0],
+    lightPosition[1],
+    lightPosition[2],
+    torsoX2,
+    torsoY2,
+    torsoZ2
+  ); // Assume fragPosition is the fragment's world position
+  var attenuation =
+    1.0 /
+    (constantAttenuation +
+      linearAttenuation * d +
+      quadraticAttenuation * d * d);
+
+  gl.uniform1f(gl.getUniformLocation(program, "attenuation"), attenuation);
+
+
 
   // for(i=0; i<numNodes; i++) initNodes(i);
   // for(i=0; i<numNodes2; i++) initNodes2(i);
   render();
 };
 
-
-function drawGround() {
-  instanceMatrix = mat4();
-  instanceMatrix = mult(instanceMatrix, translate(0.0,-5.5, -8.0)); // Y 위치 조정
-  instanceMatrix = mult(instanceMatrix, scale4(20.0, 12, 0.1)); // 크기 조정
-
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(vec4(0.4157, 0.5216, 0.0941, 1.0))); // 땅의 색상 (초록색)
-  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // 단일 평면 그리기
-}
-
-
-function drawSky() {
-  instanceMatrix = mat4();
-  instanceMatrix = mult(instanceMatrix, translate(0.0, 0.0, -9.0)); // 위치 조정
-  instanceMatrix = mult(instanceMatrix, scale4(20.0, 20.0, 0.1)); // 크기 조정
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-  gl.uniform4fv(gl.getUniformLocation(program, "uColor"), flatten(vec4(0.6980, 0.7686, 0.9314, 0.8))); // 하늘의 색상 (파란색)
-  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // 단일 평면 그리기
-}
-
 var render = function () {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   modelViewMatrix = translate(-3.0, -1.2, 5.6);
 
-    // Draw the ground
-    drawGround();
+  // Draw the ground
+  drawGround();
 
-    // Draw the sky
-    drawSky();
+  // Draw the sky
+  drawSky();
 
-    //drawTriangle();
-    //drawTriangle2();
-
-    
-
-    
+  //drawTriangle();
+  //drawTriangle2();
 
   for (i = 0; i < numNodes; i++) initNodes(i);
   for (i = 0; i < numNodes2; i++) initNodes2(i);
+  modelViewMatrix = lookAt(eye, at, up);
   traverse(torsoId);
-  modelViewMatrix = translate(3.0, -1.0, -5.5);
   traverse2(torsoId);
   requestAnimFrame(render);
 };

@@ -17,6 +17,8 @@ uniform vec4 lightPosition;           // 조명 위치
 uniform float shininess;              // 광택도
 uniform vec4 uColor; // 색상 정보
 
+uniform float attenuation;              // 추가된 조명 변수
+
 void main()
 {
     vec3 pos = -(modelViewMatrix * vPosition).xyz;  // 정점의 눈 좌표계 위치
@@ -36,10 +38,10 @@ void main()
     // 조명 방정식의 항들을 계산
     vec4 ambient = ambientProduct;
 
-    float Kd = max( dot(L, N), 0.0 );
+    float Kd = max( dot(L, N), 0.0 ) * attenuation;
     vec4  diffuse = Kd * diffuseProduct;
 
-    float Ks = pow( max(dot(N, H), 0.0), shininess ); 
+    float Ks = pow( max(dot(N, H), 0.0), shininess ) * attenuation; 
     vec4  specular = Ks * specularProduct;
     
     if( dot(L, N) < 0.0 ) {
@@ -86,11 +88,6 @@ void main()
                 <li>3. Press the "motioncapture stop" button to stop the recording.</li>
                 <li>4. Press the "motioncapture play" button to replay the recorded motion.</li>
                 <li>5. Press the "motioncapture print" button to output the recorded motion data to the console for use.</li>
-                
-
-
-
-
             </ul>
         </div>
         <!-- 동작 버튼들 -->
