@@ -282,10 +282,6 @@ function createNode(transform, render, sibling, child) {
   return node;
 }
 
-// var leftLowerArmId = 3;
-// var rightUpperArmId = 4;
-// var rightLowerArmId = 5;
-
 function initNodes(Id) {
   var m = mat4();
   switch (Id) {
@@ -389,16 +385,6 @@ function initNodes2(Id) {
         leftLowerLegId
       );
       break;
-    // case leftUpperLegId2:
-    //   m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-    //   m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
-    //   figure2[leftUpperLegId2] = createNode(
-    //     m2,
-    //     leftUpperLeg2,
-    //     rightUpperLegId,
-    //     leftLowerLegId
-    //   );
-    //   break;
 
     case rightUpperLegId:
       m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
@@ -481,7 +467,6 @@ function bowl() {
 function feed() {
   instanceMatrix = mult(
     modelViewMatrix,
-    // instanceMatrix = mult(modelViewMatrix, translate(-10.0, 0.0, 10.0));
     translate(-20.0 * feedWidth, 0.5 * feedHeight, 16.0 * feedWidth)
   );
   instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
@@ -756,10 +741,6 @@ window.onload = function init() {
   var far = 200.0; // far clipping plane  단위
 
   projectionMatrix = perspective(fov, aspect, near, far);
-  // projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
-  // modelViewMatrix = mat4();
-
-  // gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
   gl.uniformMatrix4fv(
     gl.getUniformLocation(program, "projectionMatrix"),
     false,
@@ -1067,7 +1048,6 @@ window.onload = function init() {
     isWaggingTail = false; // 모든 애니메이션 플래그를 초기화
 
     // 다리 각도 초기화
-    //theta[head1Id] = 0;
     theta[rightUpperArmId] = 0;
     theta[rightUpperLegId] = 0;
     theta[leftUpperArmId] = 0;
@@ -1077,9 +1057,6 @@ window.onload = function init() {
     theta[leftLowerArmId] = 0;
     theta[leftLowerLegId] = 0;
 
-    //theta[torsoId2] = 0;
-    //theta[tailId] = 0;
-    //theta[leftUpperLegId2] = 0;
     for (var i = 0; i < numNodes2; i++) initNodes2(i);
   };
 
@@ -1120,9 +1097,6 @@ window.onload = function init() {
         theta[rightLowerLegId] = -(accumulatedAngle / 4);
         torsoX2 += 0.03;
       }
-
-      // 몸통의 x 좌표를 업데이트하여 앞으로 나아가도록 함
-      //torsoX2 += 0.05;
 
       for (var i = 0; i < numNodes2; i++) initNodes2(i);
 
@@ -1399,10 +1373,6 @@ window.onload = function init() {
 
   gl.uniform1f(gl.getUniformLocation(program, "attenuation"), attenuation);
 
-
-
-  // for(i=0; i<numNodes; i++) initNodes(i);
-  // for(i=0; i<numNodes2; i++) initNodes2(i);
   render();
 };
 
@@ -1415,9 +1385,6 @@ var render = function () {
 
   // Draw the sky
   drawSky();
-
-  //drawTriangle();
-  //drawTriangle2();
 
   for (i = 0; i < numNodes; i++) initNodes(i);
   for (i = 0; i < numNodes2; i++) initNodes2(i);

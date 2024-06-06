@@ -282,10 +282,6 @@ function createNode(transform, render, sibling, child) {
   return node;
 }
 
-// var leftLowerArmId = 3;
-// var rightUpperArmId = 4;
-// var rightLowerArmId = 5;
-
 function initNodes(Id) {
   var m = mat4();
   switch (Id) {
@@ -389,16 +385,6 @@ function initNodes2(Id) {
         leftLowerLegId
       );
       break;
-    // case leftUpperLegId2:
-    //   m2 = translate(-0.5 * torsoWidth, 0.0, -0.5 * torsoWidth);
-    //   m2 = mult(m2, rotate(theta[leftUpperLegId2], 0, 1, 0)); // Y축 회전
-    //   figure2[leftUpperLegId2] = createNode(
-    //     m2,
-    //     leftUpperLeg2,
-    //     rightUpperLegId,
-    //     leftLowerLegId
-    //   );
-    //   break;
 
     case rightUpperLegId:
       m2 = translate(-0.5 * torsoWidth, 0.0, 0.5 * torsoWidth);
@@ -756,10 +742,7 @@ window.onload = function init() {
   var far = 200.0; // far clipping plane  단위
 
   projectionMatrix = perspective(fov, aspect, near, far);
-  // projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
-  // modelViewMatrix = mat4();
 
-  // gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
   gl.uniformMatrix4fv(
     gl.getUniformLocation(program, "projectionMatrix"),
     false,
@@ -792,7 +775,6 @@ window.onload = function init() {
   var diffuseProduct = mult(lightDiffuse, materialDiffuse);
   var specularProduct = mult(lightSpecular, materialSpecular);
 
-
   function motionCapturePlay(motionCaptureData) {
     console.log("Playing captured motion");
     capturedMotion = motionCaptureData[0];
@@ -801,29 +783,25 @@ window.onload = function init() {
     let index = 0;
     const interval = setInterval(() => {
       if (index < capturedMove.length) {
-        // 현재 인덱스에 해당하는 위치 데이터를 가져와 모델 뷰 행렬을 업데이트
+        // motionCaptureData에 저장된 위치 데이터를 가져와 modelViewMatrix 업데이트
         torsoX2 = capturedMove[index][0];
         torsoY2 = capturedMove[index][1];
         torsoZ2 = capturedMove[index][2];
-
         theta = capturedMotion[index];
-
-        // 모델 뷰 행렬 업데이트 함수 실행
+        // modelViewMatrix 업데이트
         m2 = mat4();
         m2 = translate(torsoX2, torsoY2, torsoZ2);
-        m2 = mult(m2, rotate(theta[torsoId], 0, 1, 0)); // 회전을 적용하고 싶다면 여기에 추가
+        m2 = mult(m2, rotate(theta[torsoId], 0, 1, 0)); // 회전
         modelViewMatrix = m2;
-
-        // 모든 노드를 초기화하여 새로운 위치를 반영
+        // 모든 노드를 초기화하여 새로운 위치 반영
         for (let i = 0; i < numNodes; i++) {
           initNodes(i);
         }
         index++;
       } else {
-        // 배열의 끝에 도달하면 인터벌 중지
         clearInterval(interval);
       }
-    }, 10); // 간격은 밀리초 단위로 설정, 조정 가능
+    }, 10); // 10ms
   }
 
   document.getElementById("playWithMeMotionData").onclick = function () {
@@ -908,25 +886,15 @@ window.onload = function init() {
 
   gl.uniform1f(gl.getUniformLocation(program, "attenuation"), attenuation);
 
-
-
-  // for(i=0; i<numNodes; i++) initNodes(i);
-  // for(i=0; i<numNodes2; i++) initNodes2(i);
   render();
 };
 var render = function () {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   modelViewMatrix = translate(-3.0, -1.2, 5.6);
 
-  // Draw the ground
   drawGround();
-
-  // Draw the sky
   drawSky();
-
-  //drawTriangle();
-  //drawTriangle2();
-
+  
   for (i = 0; i < numNodes; i++) initNodes(i);
   for (i = 0; i < numNodes2; i++) initNodes2(i);
   modelViewMatrix = lookAt(eye, at, up);
