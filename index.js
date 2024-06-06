@@ -854,6 +854,14 @@ window.onload = function init() {
     motionCapturePlay(runAwayMotionData);
   };
 
+  document.getElementById("giveHandMotionData").onclick = function () {
+    motionCapturePlay(giveHandMotionData);
+  }
+
+  document.getElementById("didYouCallMeMotionData").onclick = function () {
+    motionCapturePlay(didYouCallMeMotionData);
+  }
+
   function resetLieDownVariables() {
     // 관련 변수 초기화
     accumulatedAngle = 0;
