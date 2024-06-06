@@ -9,8 +9,8 @@ var modelViewMatrix;
 var instanceMatrix;
 var modelViewMatrixLoc;
 
-var eye = vec3(0, 7, 25); // 카메라를 z축을 따라 뒤로 이동
-var at = vec3(-4, 0, 0); // 카메라가 원점을 바라보도록 설정
+var eye = vec3(0, 7, 34); // 카메라를 z축을 따라 뒤로 이동
+var at = vec3(-5, 0, 0); // 카메라가 원점을 바라보도록 설정
 var up = vec3(0, 1, 0); // 상방향을 y축으로 설정
 
 var isWalking = false;
@@ -41,7 +41,6 @@ var runCycle = 0; // 주기적으로 앞뒤로 움직이는 것을 제어하는 
 var torsoAngle = 0; // torso angle을 위한 변수 추가
 var legLiftAngle = 0; // 다리 각도
 var accumulatedOffset = 0; // 각도 누적 오프셋
-var torsoHeight = 0; // 모델의 위치를 낮추기 위한 변수 추가
 var shakeAngle = 0;
 var tailAngle = 0;
 
@@ -90,8 +89,8 @@ var triangleVertices = [
   vec4(10.0, 6.0, -8.0, 1.0), // Bottom right vertex
 ];
 
-var lightPosition = vec4(20.0, 14.0, 17.0, 0.0);
-var lightAmbient = vec4(1.8, 1.8, 1.8, 1.0);
+var lightPosition = vec4(25.0, 15.0, 22.0, 0.0);
+var lightAmbient = vec4(2.0, 2.0, 2.0, 1.0);
 var lightDiffuse = vec4(1.3, 1.3, 1.3, 1.0);
 var lightSpecular = vec4(1.3, 1.3, 0.3, 1.0);
 
@@ -296,7 +295,7 @@ function initNodes(Id) {
 
     case headId:
       m = translate(-0.5 * bowlWidth, 0.5 * bowlHeight, 0.9 * bowlWidth);
-      figure[headId] = createNode(m, feed, null, leftUpperArmId);
+      figure [headId] = createNode(m, feed, null, leftUpperArmId);
       break;
 
     case leftUpperArmId:
@@ -466,7 +465,7 @@ function traverse2(Id) {
 }
 
 function bowl() {
-  instanceMatrix = mult(modelViewMatrix, translate(-2.0, 0.0, 2.0));
+  instanceMatrix = mult(modelViewMatrix, translate(-10.0, 0.0, 10.0));
   instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
   instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0, 1));
   instanceMatrix = mult(
@@ -482,7 +481,8 @@ function bowl() {
 function feed() {
   instanceMatrix = mult(
     modelViewMatrix,
-    translate(0.5 * feedWidth, 0.5 * feedHeight, 0.5 * feedWidth)
+    // instanceMatrix = mult(modelViewMatrix, translate(-10.0, 0.0, 10.0));
+    translate(-20.0 * feedWidth, 1 * feedHeight, 16.0 * feedWidth)
   );
   instanceMatrix = mult(instanceMatrix, rotate(45, 0, 1, 0));
   instanceMatrix = mult(instanceMatrix, rotate(5, 5, 0, 1));
@@ -677,8 +677,8 @@ function rightear() {
 
 function drawGround() {
   instanceMatrix = mat4();
-  instanceMatrix = mult(instanceMatrix, translate(0.0, -3000.5, -800.0)); // Y 위치 조정
-  instanceMatrix = mult(instanceMatrix, scale4(20000.0, 6000, 10.0)); // 크기 조정
+  instanceMatrix = mult(instanceMatrix, translate(0.0, -3000.5, -100.0)); // Y 위치 조정
+  instanceMatrix = mult(instanceMatrix, scale4(20000.0, 6000, 1.0)); // 크기 조정
 
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   gl.uniform4fv(
@@ -690,8 +690,8 @@ function drawGround() {
 
 function drawSky() {
   instanceMatrix = mat4();
-  instanceMatrix = mult(instanceMatrix, translate(0.0, 600.0, -900.0)); // 위치 조정
-  instanceMatrix = mult(instanceMatrix, scale4(20000.0, 6000.0, 10.0)); // 크기 조정
+  instanceMatrix = mult(instanceMatrix, translate(0.0, 600.0, -150.0)); // 위치 조정
+  instanceMatrix = mult(instanceMatrix, scale4(20000.0, 6000.0, 1.0)); // 크기 조정
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   gl.uniform4fv(
     gl.getUniformLocation(program, "uColor"),
@@ -753,13 +753,13 @@ window.onload = function init() {
   var fov = 45; // degrees
   var aspect = canvas.width / canvas.height; // aspect ratio
   var near = 0.1; // near clipping plane
-  var far = 1000.0; // far clipping plane을 1000 단위로 설정
+  var far = 200.0; // far clipping plane  단위
 
   projectionMatrix = perspective(fov, aspect, near, far);
   // projectionMatrix = ortho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
-  //    modelViewMatrix = mat4();
+  // modelViewMatrix = mat4();
 
-  //    gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
+  // gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
   gl.uniformMatrix4fv(
     gl.getUniformLocation(program, "projectionMatrix"),
     false,
@@ -908,38 +908,6 @@ window.onload = function init() {
     }
   };
 
-  // document.getElementById("walk").oninput = function (event) {
-  //   theta[rightUpperArmId] = event.target.value;
-  //   theta[rightLowerArmId] = -0.5 * event.target.value;
-  //   theta[leftUpperArmId] = -event.target.value;
-  //   theta[leftLowerArmId] = 0.5 * event.target.value;
-  //   theta[leftUpperLegId] = event.target.value;
-  //   theta[leftLowerLegId] = -0.5 * event.target.value;
-  //   theta[rightUpperLegId] = -event.target.value;
-  //   theta[rightLowerLegId] = -0.5 * event.target.value;
-  //   torsoX2 += 0.1;
-  //   m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
-  //   initNodes2(head2Id);
-  //   if (isCapturing) {
-  //     capturedMotion.push([...theta]);
-  //     capturedMove.push([torsoX2, torsoY2, torsoZ2]);
-  //   }
-  // };
-
-  // document.getElementById("run").oninput = function (event) {
-  //   theta[rightUpperArmId] = event.target.value;
-  //   theta[leftUpperArmId] = event.target.value;
-  //   theta[leftUpperLegId] = -event.target.value;
-  //   theta[rightUpperLegId] = -event.target.value;
-  //   torsoX2 += 0.15;
-  //   m2 = mult(m2, translate(torsoX2, torsoY2, torsoZ2));
-  //   initNodes2(head2Id);
-  //   if (isCapturing) {
-  //     capturedMotion.push([...theta]);
-  //     capturedMove.push([torsoX2, torsoY2, torsoZ2]);
-  //   }
-  // };
-
   document.getElementById("delayDummy").oninput = function (event) {
     if (isCapturing) {
       capturedMotion.push([...theta]);
@@ -983,7 +951,7 @@ window.onload = function init() {
 
         // 모든 노드를 초기화하여 새로운 위치를 반영
         for (let i = 0; i < numNodes; i++) {
-          initNodes(i);
+          initNodes2(i);
         }
 
         index++;
@@ -1365,6 +1333,10 @@ window.onload = function init() {
 
       requestAnimationFrame(shakeMotion);
     }
+    if (isCapturing) {
+      capturedMotion.push([...theta]);
+      capturedMove.push([torsoX2, torsoY2, torsoZ2]);
+    }
   }
 
   function wagTailMotion() {
@@ -1445,8 +1417,8 @@ var render = function () {
 
   for (i = 0; i < numNodes; i++) initNodes(i);
   for (i = 0; i < numNodes2; i++) initNodes2(i);
-  traverse(torsoId);
   modelViewMatrix = lookAt(eye, at, up);
+  traverse(torsoId);
   traverse2(torsoId);
   requestAnimFrame(render);
 };
