@@ -1,6 +1,6 @@
 # webgl_dog_simulation
 [2024.05-2024.06]
-webgl_dog_simulation
+
 
 [play this at web!](https://2024-webgl-dog-simulation.github.io/webgl_dog_simulation/)
 
